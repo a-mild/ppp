@@ -35,14 +35,6 @@ class AbstractPaymentsRepo(ABC):
 class InMemoryPaymentsRepo(AbstractPaymentsRepo):
     data: PaymentsMapping = {}
 
-    @property
-    def assets(self) -> PaymentsMapping:
-        return [p for p in self.data.values() if p.side == BalanceSheetSide.asset]
-
-    @property
-    def liabilities(self) -> PaymentsMapping:
-        return [p for p in self.data.values() if p.side == BalanceSheetSide.liability]
-
     def add_payment(self, payment: PaymentBase) -> None:
         self.data[payment.id_] = payment
 
@@ -51,3 +43,11 @@ class InMemoryPaymentsRepo(AbstractPaymentsRepo):
 
     def delete_payment(self, id_: UUID) -> PaymentBase | None:
         return self.data.pop(id_, None)
+
+    @property
+    def assets(self) -> PaymentsMapping:
+        return [p for p in self.data.values() if p.side == BalanceSheetSide.asset]
+
+    @property
+    def liabilities(self) -> PaymentsMapping:
+        return [p for p in self.data.values() if p.side == BalanceSheetSide.liability]

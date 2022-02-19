@@ -55,7 +55,7 @@ class PandasUnitOfWork(AbstractBankStatementUnitOfWork):
 
     def commit(self):
         # update the sum column
-        self.bank_statement.df["sum"] = 100
+        self.bank_statement._update_total()
 
     def rollback(self):
         self.bank_statement.df = self.df_copy
