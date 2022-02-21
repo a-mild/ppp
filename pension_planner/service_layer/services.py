@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pension_planner.domain.payments import payment_factory
+from pension_planner.domain.orders import payment_factory
 from pension_planner.service_layer.unit_of_work import AbstractPaymentsUnitOfWork, AbstractBankStatementUnitOfWork
 
 

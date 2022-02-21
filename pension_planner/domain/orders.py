@@ -42,7 +42,7 @@ class SingleOrder(OrderBase):
 
 
 @dataclass
-class ConstantPayment(OrderBase):
+class StandingOrder(OrderBase):
     from_ts: date
     until_ts: date
     amount: float

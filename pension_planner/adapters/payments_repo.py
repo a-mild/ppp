@@ -2,29 +2,29 @@ from abc import ABC, abstractproperty, abstractmethod
 from collections.abc import MutableMapping
 from uuid import UUID
 
-from pension_planner.domain.payments import PaymentBase, BalanceSheetSide
+from pension_planner.domain.orders import OrderBase, BalanceSheetSide
 
-PaymentsMapping = MutableMapping[UUID, PaymentBase]
+PaymentsMapping = MutableMapping[UUID, OrderBase]
 
 
 class AbstractPaymentsRepo(ABC):
 
     @property
     @abstractmethod
-    def assets(self) -> list[PaymentBase]:
+    def assets(self) -> list[OrderBase]:
         return NotImplementedError
 
     @property
     @abstractmethod
-    def liabilities(self) -> list[PaymentBase]:
+    def liabilities(self) -> list[OrderBase]:
         return NotImplementedError
 
     @abstractmethod
-    def add_payment(self, payment: PaymentBase) -> None:
+    def add_payment(self, payment: OrderBase) -> None:
         return NotImplementedError
 
     @abstractmethod
-    def add_payment(self, payment: PaymentBase) -> None:
+    def add_payment(self, payment: OrderBase) -> None:
         return NotImplementedError
 
     @abstractmethod
@@ -35,13 +35,13 @@ class AbstractPaymentsRepo(ABC):
 class InMemoryPaymentsRepo(AbstractPaymentsRepo):
     data: PaymentsMapping = {}
 
-    def add_payment(self, payment: PaymentBase) -> None:
+    def add_payment(self, payment: OrderBase) -> None:
         self.data[payment.id_] = payment
 
-    def get_payment(self, id_: UUID) -> PaymentBase:
+    def get_payment(self, id_: UUID) -> OrderBase:
         return self.data[id_]
 
-    def delete_payment(self, id_: UUID) -> PaymentBase | None:
+    def delete_payment(self, id_: UUID) -> OrderBase | None:
         return self.data.pop(id_, None)
 
     @property
