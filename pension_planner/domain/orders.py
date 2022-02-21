@@ -18,7 +18,7 @@ PAYMENT_TYPES = {}
 
 
 @dataclass
-class PaymentBase(ABC):
+class OrderBase(ABC):
     name: str
     side: BalanceSheetSide
     id_: UUID = field(default_factory=uuid4, init=False)
@@ -29,11 +29,11 @@ class PaymentBase(ABC):
 
     @abstractmethod
     def get_timeseries(self) -> Mapping[date, float]:
-        return NotImplementedError
+        ...
 
 
 @dataclass
-class SinglePayment(PaymentBase):
+class SingleOrder(OrderBase):
     timestamp: date
     amount: float
 
@@ -42,7 +42,7 @@ class SinglePayment(PaymentBase):
 
 
 @dataclass
-class ConstantPayment(PaymentBase):
+class ConstantPayment(OrderBase):
     from_ts: date
     until_ts: date
     amount: float
@@ -51,6 +51,6 @@ class ConstantPayment(PaymentBase):
         return {ts: self.amount for ts in rrule(MONTHLY, dtstart=self.from_ts, until=self.until_ts)}
 
 
-def payment_factory(payment_type: str, **payment_kwargs) -> PaymentBase:
+def payment_factory(payment_type: str, **payment_kwargs) -> OrderBase:
     cls = PAYMENT_TYPES[payment_type]
     return cls(**payment_kwargs)
