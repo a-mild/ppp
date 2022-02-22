@@ -6,28 +6,51 @@ from pension_planner.domain.bank_account import BankAccount
 
 class AbstractBankAccountRepository(ABC):
 
-    @abstractmethod
-    def add(self, bank_account: BankAccount) -> None:
-        ...
+    def __init__(self):
+        self.seen: set[BankAccount] = set()
 
-    @abstractmethod
+    def add(self, bank_account: BankAccount):
+        self._add(bank_account)
+        self.seen.add(bank_account)
+
     def get(self, id_: UUID) -> BankAccount:
+        bank_account = self._get(id_)
+        if bank_account:
+            self.seen.add(bank_account)
+        return bank_account
+
+    def delete(self, id_: UUID) -> BankAccount:
+        bank_account = self._delete(id_)
+        if bank_account:
+            self.seen.add(bank_account)
+        return bank_account
+
+    @abstractmethod
+    def _add(self, bank_account: BankAccount) -> None:
         ...
 
     @abstractmethod
-    def delete(self, id_: UUID) -> None:
+    def _get(self, id_: UUID) -> BankAccount:
+        ...
+
+    @abstractmethod
+    def _delete(self, id_: UUID) -> BankAccount:
         ...
 
 
 class InMemoryBankAccountRepository(AbstractBankAccountRepository):
-    accounts: dict[UUID, BankAccount] = {}
+    data: dict[UUID, BankAccount] = {}
 
-    def add(self, bank_account: BankAccount) -> None:
+    def _add(self, bank_account: BankAccount) -> BankAccount:
         id_ = bank_account.id_
-        self.accounts[id_] = bank_account
+        self.data[id_] = bank_account
+        return bank_account
 
-    def get(self, id_: UUID) -> BankAccount:
-        return self.accounts[id_]
+    def _get(self, id_: UUID) -> BankAccount:
+        return self.data[id_]
 
-    def delete(self, id_: UUID) -> None:
-        self.accounts.pop(id_)
+    def list_all(self) -> list[BankAccount]:
+        return [acc for acc in self.data.values()]
+
+    def _delete(self, id_: UUID) -> BankAccount | None:
+        return self.data.pop(id_, None)

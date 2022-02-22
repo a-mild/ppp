@@ -1,0 +1,13 @@
+name: pension-planner
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytest
+  - python-dateutil
+  - pandas
+  - jupyterlab[version='>=3']
+  - ipyvuetify
+  - ipywidgets[version='>=7.6']
+  - voila
