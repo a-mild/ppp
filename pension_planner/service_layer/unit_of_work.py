@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod, ABCMeta
+from abc import ABC, abstractmethod
 from copy import copy
 
-from pension_planner.adapters.payments_repo import InMemoryPaymentsRepo, AbstractPaymentsRepo
-from pension_planner.adapters.bank_statement import PandasBankStatement, AbstractBankStatementRepository
+from pension_planner.repository.bank_account_repo import AbstractBankAccountRepository, InMemoryBankAccountRepository
 
 
 class AbstractUnitOfWork(ABC):
+    accounts: AbstractBankAccountRepository
 
     def __enter__(self):
         return self
@@ -18,44 +18,26 @@ class AbstractUnitOfWork(ABC):
 
     @abstractmethod
     def commit(self):
-        raise NotImplementedError
+        ...
 
     @abstractmethod
     def rollback(self):
-        raise NotImplementedError
+        ...
+
+    def collect_new_events(self):
+        for bank_account in self.accounts.seen:
+            while bank_account.events:
+                yield bank_account.events.pop(0)
 
 
-class AbstractPaymentsUnitOfWork(AbstractUnitOfWork, metaclass=ABCMeta):
-    payments: AbstractPaymentsRepo
-
-
-class AbstractBankStatementUnitOfWork(AbstractUnitOfWork, metaclass=ABCMeta):
-    bank_statement: AbstractBankStatementRepository
-
-
-class InMemoryPaymentsUnitOfWork(AbstractPaymentsUnitOfWork):
-    payments = InMemoryPaymentsRepo()
+class InMemoryBankAccountRepositoryUnitOfWork(AbstractUnitOfWork):
 
     def __init__(self):
-        self.data_copy = copy(self.payments.data)
+        self.accounts: InMemoryBankAccountRepository = InMemoryBankAccountRepository()
+        self.data_copy = copy(self.accounts.data)
 
     def commit(self):
-        return
+        pass
 
     def rollback(self):
-        self.payments.data = self.data_copy
-
-
-class PandasUnitOfWork(AbstractBankStatementUnitOfWork):
-    bank_statement = PandasBankStatement()
-
-    def __init__(self):
-        # save df for rollback
-        self.df_copy = self.bank_statement.df.copy(deep=True)
-
-    def commit(self):
-        # update the sum column
-        self.bank_statement._update_total()
-
-    def rollback(self):
-        self.bank_statement.df = self.df_copy
+        self.accounts.data = self.data_copy
