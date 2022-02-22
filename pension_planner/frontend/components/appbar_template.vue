@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar app>
+    <v-app-bar>
         <v-app-bar-nav-icon @click.stop="toggle_drawer()"></v-app-bar-nav-icon>
         <v-toolbar-title class=".text-h5">
                 Pension Simulator
@@ -55,9 +55,10 @@
           <v-tab v-for="item in accounts" @change="tab_clicked(item.id_)">
             {{item.name}}
           </v-tab>
-          <v-tab @click="add_bank_account()">
+          <v-btn @click="add_bank_account()">
+            <v-icon left>mdi-plus-circle</v-icon>
             neues Konto
-          </v-tab>
+          </v-btn>
         </v-tabs>
       </template>
     </v-app-bar>

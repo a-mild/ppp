@@ -14,7 +14,7 @@ class BalanceSheetSide(Enum):
 
 
 # registry for the different payment classes
-PAYMENT_TYPES = {}
+ORDER_TYPES: dict[str, "OrderBase"] = {}
 
 
 @dataclass
@@ -25,7 +25,7 @@ class OrderBase(ABC):
 
     def __init_subclass__(cls, **kwargs) -> None:
         name = cls.__name__
-        PAYMENT_TYPES[name] = cls
+        ORDER_TYPES[name] = cls
 
     @abstractmethod
     def get_timeseries(self) -> Mapping[date, float]:

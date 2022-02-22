@@ -14,7 +14,7 @@ from pension_planner.frontend.components import COMPONENTS_DIR
 from pension_planner.service_layer import handlers, events
 from pension_planner.service_layer.events import ToggleDrawer
 from pension_planner.service_layer.messagebus import handle
-from pension_planner.service_layer.unit_of_work import InMemoryBankAccountRepositoryUnitOfWork
+from pension_planner.service_layer.unit_of_work import InMemoryBankAccountRepositoryUnitOfWork, AbstractUnitOfWork
 
 """
 download stolen from https://github.com/voila-dashboards/voila/issues/711
@@ -43,8 +43,9 @@ class AppBar(v.VuetifyTemplate):
 
     def vue_toggle_drawer(self, data):
         logging.debug("Toggle drawer clicked")
+        uow = InMemoryBankAccountRepositoryUnitOfWork()
         event = events.ToggleDrawer()
-        handle(event)
+        handle(event, uow)
 
     def vue_active_tab_changed(self, data):
         logging.debug(f"Tab changed: {data!r}")

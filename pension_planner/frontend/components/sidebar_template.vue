@@ -1,14 +1,20 @@
-<v-navigation-drawer app v-model="drawer_open" width="25%">
-    <v-tabs-items v-model="tabs">
-      <v-tab-item
-        v-for="item in tabs"
-      >
-        <v-card flat>
-          <v-card-text>{{ item }}</v-card-text>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
-    <jupyter-widget :widget="parts.add" />
+<v-navigation-drawer v-model="drawer_open" width="50%">
+    <v-toolbar flat>
+        <v-toolbar-title>
+            Bankkonto #42
+        </v-toolbar-title>
+    </v-toolbar>
     <v-divider></v-divider>
-    <jupyter-widget :widget="parts.editor" />
+    <v-menu v-for="menu in menus">
+        <template v-slot:activator="{on, attrs }">
+            <v-btn x-small :color="menu.color" v-bind="attrs" v-on="on">
+                <v-icon>mdi-plus</v-icon> {{menu.text}}
+            </v-btn>
+        </template>
+        <v-list>
+            <v-list-item v-for="name in order_types" @click="add_order(menu.side)">
+                <v-list-item-title>{{name}}</v-list-item-title>
+            </v-list-item>
+        </v-list>
+    </v-menu>
 </v-navigation-drawer>
