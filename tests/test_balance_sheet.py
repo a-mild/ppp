@@ -8,16 +8,16 @@ def balance_sheet() -> BalanceSheet:
     return BalanceSheet()
 
 
-def test_add_payment(balance_sheet, single_payment) -> None:
+def test_add_payment(balance_sheet, single_order) -> None:
     sheet = balance_sheet
-    payment = single_payment
+    payment = single_order
     sheet.add_payment(payment)
     assert payment.id_ in sheet.data
 
 
-def test_delete_payment(balance_sheet, single_payment) -> None:
+def test_delete_payment(balance_sheet, single_order) -> None:
     sheet = balance_sheet
-    payment = single_payment
+    payment = single_order
     sheet.add_payment(payment)
     deleted_payment = sheet.delete_payment(payment.id_)
     assert payment.id_ not in sheet.data

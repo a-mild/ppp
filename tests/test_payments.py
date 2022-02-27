@@ -3,8 +3,8 @@ from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 
 
-def test_single_payment_timeseries(single_payment) -> None:
-    payment = single_payment
+def test_single_payment_timeseries(single_order) -> None:
+    payment = single_order
     timeseries = payment.get_timeseries()
     assert timeseries == {date(2022, 12, 1): 100.00}
 

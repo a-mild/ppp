@@ -1,16 +1,16 @@
 import pytest
 
-from pension_planner.domain.bank_account import BankAccount
-from pension_planner.repository.bank_account_repo import InMemoryBankAccountRepository
+from pension_planner.domain.account import Account
+from pension_planner.repository.account_repo import InMemoryAccountRepository
 
 @pytest.fixture
 def bank_account_repo():
-    return InMemoryBankAccountRepository()
+    return InMemoryAccountRepository()
 
 
 @pytest.fixture
 def bank_account():
-    return BankAccount()
+    return Account()
 
 
 def test_add_bank_account(bank_account_repo, bank_account):

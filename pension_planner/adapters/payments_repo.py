@@ -1,10 +1,7 @@
 from abc import ABC, abstractproperty, abstractmethod
-from collections.abc import MutableMapping
 from uuid import UUID
 
-from pension_planner.domain.orders import OrderBase, BalanceSheetSide
-
-PaymentsMapping = MutableMapping[UUID, OrderBase]
+from pension_planner.domain.orders import OrderBase
 
 
 class AbstractPaymentsRepo(ABC):

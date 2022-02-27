@@ -1,11 +1,9 @@
 from uuid import UUID
 
-import pytest
-
-from pension_planner.domain.bank_account import BankAccount
-from pension_planner.repository.bank_account_repo import AbstractBankAccountRepository
+from pension_planner.domain.account import Account
+from pension_planner.repository.account_repo import AbstractBankAccountRepository
 from pension_planner.service_layer import messagebus
-from pension_planner.service_layer.events import BankAccountCreated
+from pension_planner.domain.commands import OpenAccount
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
 
@@ -13,16 +11,16 @@ class FakeBankAccountRepository(AbstractBankAccountRepository):
 
     def __init__(self):
         super().__init__()
-        self.data: dict[UUID, BankAccount] = {}
+        self.data: dict[UUID, Account] = {}
 
-    def _add(self, bank_account: BankAccount) -> None:
+    def _add(self, bank_account: Account) -> None:
         id_ = bank_account.id_
         self.data[id_] = bank_account
 
-    def _get(self, id_: UUID) -> BankAccount:
+    def _get(self, id_: UUID) -> Account:
         return self.data[id_]
 
-    def _delete(self, id_: UUID) -> BankAccount:
+    def _delete(self, id_: UUID) -> Account:
         return self.data.pop(id_)
 
 
@@ -38,8 +36,10 @@ class FakeUnitOfWork(AbstractUnitOfWork):
         pass
 
 
-def test_add_bank_account():
+def test_open_bank_account():
     uow = FakeUnitOfWork()
-    event = BankAccountCreated(name="test")
-    results = messagebus.handle(event, uow=uow)
-    assert results == ["test"]
+    command = OpenAccount(name="test")
+    [account] = messagebus.handle(command, uow=uow)
+    assert account.name == command.name
+    assert account.orders == command.orders
+    assert account.interest_rate == command.interest_rate

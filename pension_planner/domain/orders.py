@@ -16,8 +16,8 @@ ORDER_TYPES: dict[str, Type["OrderBase"]] = {}
 @dataclass
 class OrderBase(ABC):
     name: str
-    from_acc: UUID
     target_acc: UUID
+    from_acc: UUID
     id_: UUID = field(default_factory=uuid4, init=False)
 
     def __init_subclass__(cls, **kwargs) -> None:

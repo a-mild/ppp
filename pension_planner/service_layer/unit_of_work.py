@@ -1,6 +1,11 @@
 from abc import ABC, abstractmethod
 from copy import copy
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+
+from pension_planner import config
+from pension_planner.adapters.accounts_repo import SQLAlchemyAccountRepository
 from pension_planner.repository.account_repo import AbstractBankAccountRepository, InMemoryAccountRepository
 
 
@@ -30,14 +35,27 @@ class AbstractUnitOfWork(ABC):
                 yield account.events.pop(0)
 
 
-class InMemoryBankAccountRepositoryUnitOfWork(AbstractUnitOfWork):
+DEFAULT_SESSION_FACTORY = sessionmaker(
+    bind=create_engine(config.get_sqlite_uri())
+)
 
-    def __init__(self):
-        self.accounts: InMemoryAccountRepository = InMemoryAccountRepository()
-        self.data_copy = copy(self.accounts.data)
+
+class SQLAlchemyUnitOfWork(AbstractUnitOfWork):
+
+    def __init__(self, session_factory=DEFAULT_SESSION_FACTORY):
+        self.session_factory = session_factory
+
+    def __enter__(self):
+        self.session: Session = self.session_factory()
+        self.accounts = SQLAlchemyAccountRepository(self.session)
+        return super().__enter__()
+
+    def __exit__(self, *args):
+        super().__exit__(*args)
+        self.session.close()
 
     def commit(self):
-        pass
+        self.session.commit()
 
     def rollback(self):
-        self.accounts.data = self.data_copy
+        self.session.rollback()

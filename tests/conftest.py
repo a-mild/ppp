@@ -1,12 +1,41 @@
 from datetime import date
 
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, clear_mappers
 
-from pension_planner.domain.orders import SingleOrder, BalanceSheetSide, StandingOrder
+from pension_planner.adapters.orm import metadata, start_mappings
+from pension_planner.domain.account import Account
+from pension_planner.domain.orders import SingleOrder, StandingOrder
 
 
 @pytest.fixture
-def single_payment() -> SingleOrder:
+def in_memory_sqlite_db():
+    engine = create_engine("sqlite+pysqlite:///:memory:")
+    metadata.create_all(engine)
+    return engine
+
+@pytest.fixture
+def session_factory(in_memory_sqlite_db):
+    start_mappings()
+    yield sessionmaker(bind=in_memory_sqlite_db, future=True)
+    clear_mappers()
+
+@pytest.fixture
+def session(session_factory):
+    return session_factory()
+
+
+@pytest.fixture
+def account():
+    return Account(
+        name="Girokonto #1",
+        interest_rate=0.0,
+        orders=[]
+    )
+
+@pytest.fixture
+def single_order() -> SingleOrder:
     name = "single payment"
     side = BalanceSheetSide.asset
     ts = date(2022, 12, 1)
