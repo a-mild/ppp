@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from copy import copy
 
-from pension_planner.repository.bank_account_repo import AbstractBankAccountRepository, InMemoryBankAccountRepository
+from pension_planner.repository.account_repo import AbstractBankAccountRepository, InMemoryAccountRepository
 
 
 class AbstractUnitOfWork(ABC):
@@ -25,15 +25,15 @@ class AbstractUnitOfWork(ABC):
         ...
 
     def collect_new_events(self):
-        for bank_account in self.accounts.seen:
-            while bank_account.events:
-                yield bank_account.events.pop(0)
+        for account in self.accounts.seen:
+            while account.events:
+                yield account.events.pop(0)
 
 
 class InMemoryBankAccountRepositoryUnitOfWork(AbstractUnitOfWork):
 
     def __init__(self):
-        self.accounts: InMemoryBankAccountRepository = InMemoryBankAccountRepository()
+        self.accounts: InMemoryAccountRepository = InMemoryAccountRepository()
         self.data_copy = copy(self.accounts.data)
 
     def commit(self):

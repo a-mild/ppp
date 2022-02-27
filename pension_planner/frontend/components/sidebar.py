@@ -4,39 +4,46 @@ import ipyvuetify as v
 import ipywidgets as w
 import traitlets
 
+from pension_planner.domain.commands import OpenAccount
 from pension_planner.frontend.components import COMPONENTS_DIR
 
 from pension_planner.domain.orders import ORDER_TYPES
+from pension_planner.service_layer.messagebus import handle
+from pension_planner.service_layer.unit_of_work import InMemoryBankAccountRepositoryUnitOfWork
 
 
-MENU_DICT = [
-    {"color": "grey",
-     "text": "Einzahlung",
-     "side": "deposit"},
-    {"color": "red lighten-2",
-     "text": "Auszahlung",
-     "side": "payout"},
-]
+class AccountEditor(v.VuetifyTemplate):
+    template_file = str(COMPONENTS_DIR / "account_editor_template.vue")
+
+
+class TabItemAccounts(v.VuetifyTemplate):
+    template_file = str(COMPONENTS_DIR / "tab_item_accounts_template.vue")
+
+    account_name = traitlets.Unicode().tag(sync=True)
+    interest_rate = traitlets.Float().tag(sync=True)
+    # components = traitlets.Dict({
+    #     "account-editor": AccountEditor
+    # }).tag(sync=True, **v.VuetifyTemplate.class_component_serialization)
+
+    def vue_open_account(self, data=None):
+        command = OpenAccount()
+        uow = InMemoryBankAccountRepositoryUnitOfWork()
+        handle(command, uow)
+
+
+class TabItemOrders(v.VuetifyTemplate):
+    template_file = str(COMPONENTS_DIR / "tab_item_orders_template.vue")
 
 
 class SideBar(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "sidebar_template.vue")
-    order_types = traitlets.List(default_value=list(ORDER_TYPES.keys())).tag(sync=True)
+    #order_types = traitlets.List(default_value=list(ORDER_TYPES.keys())).tag(sync=True)
 
     drawer_open = traitlets.Bool(default_value=False).tag(sync=True)
-    menu_deposit = traitlets.Bool(False).tag(sync=True)
-    menu_payout = traitlets.Bool(False).tag(sync=True)
-
-    menus = traitlets.List(MENU_DICT).tag(sync=True)
-
-    def __init__(self):
-        super().__init__()
-        logging.debug("SideBar Initialized")
+    components = traitlets.Dict({
+        "tab-item-accounts": TabItemAccounts,
+        "tab-item-orders": TabItemOrders,
+    }).tag(sync=True, **v.VuetifyTemplate.class_component_serialization)
 
     def toggle_drawer(self):
-        logging.debug(f"State drawer open before: {self.drawer_open}")
         self.drawer_open = not self.drawer_open
-        logging.debug(f"State drawer open after: {self.drawer_open}")
-
-    def vue_add_order(self, data):
-        logging.debug(f"{data!r}")

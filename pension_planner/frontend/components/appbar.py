@@ -9,12 +9,11 @@ from IPython.core.display import display
 from IPython.display import HTML, clear_output
 from base64 import b64encode
 
-from pension_planner.domain.bank_account import BankAccount
+from pension_planner.domain.account import Account
 from pension_planner.frontend.components import COMPONENTS_DIR
-from pension_planner.service_layer import handlers, events
-from pension_planner.service_layer.events import ToggleDrawer
+from pension_planner.domain.commands import ToggleDrawer
 from pension_planner.service_layer.messagebus import handle
-from pension_planner.service_layer.unit_of_work import InMemoryBankAccountRepositoryUnitOfWork, AbstractUnitOfWork
+from pension_planner.service_layer.unit_of_work import InMemoryBankAccountRepositoryUnitOfWork
 
 """
 download stolen from https://github.com/voila-dashboards/voila/issues/711
@@ -44,8 +43,8 @@ class AppBar(v.VuetifyTemplate):
     def vue_toggle_drawer(self, data):
         logging.debug("Toggle drawer clicked")
         uow = InMemoryBankAccountRepositoryUnitOfWork()
-        event = events.ToggleDrawer()
-        handle(event, uow)
+        command = ToggleDrawer()
+        handle(command, uow)
 
     def vue_active_tab_changed(self, data):
         logging.debug(f"Tab changed: {data!r}")
@@ -56,9 +55,9 @@ class AppBar(v.VuetifyTemplate):
         pass
 
     def vue_add_bank_account(self, data):
-        event = events.BankAccountCreated()
+        event = events.OpenAccount()
         uow = InMemoryBankAccountRepositoryUnitOfWork()
-        results: list[BankAccount] = handle(event, uow)
+        results: list[Account] = handle(event, uow)
         new_accounts = [{"id_": str(acc.id_), "name": acc.name} for acc in results]
         self.accounts = self.accounts + new_accounts
 

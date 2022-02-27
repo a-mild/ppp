@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from enum import Enum, auto
+from typing import Type
 from uuid import uuid4, UUID
 from datetime import date, datetime
 from dataclasses import dataclass, field
@@ -8,49 +9,41 @@ from dataclasses import dataclass, field
 from dateutil.rrule import rrule, MONTHLY
 
 
-class BalanceSheetSide(Enum):
-    asset = auto()
-    liability = auto()
-
-
 # registry for the different payment classes
-ORDER_TYPES: dict[str, "OrderBase"] = {}
+ORDER_TYPES: dict[str, Type["OrderBase"]] = {}
 
 
 @dataclass
 class OrderBase(ABC):
     name: str
-    side: BalanceSheetSide
+    from_acc: UUID
+    target_acc: UUID
     id_: UUID = field(default_factory=uuid4, init=False)
 
     def __init_subclass__(cls, **kwargs) -> None:
         name = cls.__name__
         ORDER_TYPES[name] = cls
 
-    @abstractmethod
-    def get_timeseries(self) -> Mapping[date, float]:
-        ...
-
 
 @dataclass
 class SingleOrder(OrderBase):
-    timestamp: date
+    date: date
     amount: float
 
     def get_timeseries(self):
-        return {self.timestamp: self.amount}
+        return {self.date: self.amount}
 
 
 @dataclass
 class StandingOrder(OrderBase):
-    from_ts: date
-    until_ts: date
+    start_date: date
+    end_date: date
     amount: float
 
     def get_timeseries(self) -> Mapping[datetime, float]:
-        return {ts: self.amount for ts in rrule(MONTHLY, dtstart=self.from_ts, until=self.until_ts)}
+        return {ts: self.amount for ts in rrule(MONTHLY, dtstart=self.start_date, until=self.end_date)}
 
 
-def payment_factory(payment_type: str, **payment_kwargs) -> OrderBase:
-    cls = PAYMENT_TYPES[payment_type]
-    return cls(**payment_kwargs)
+def order_factory(order_type: str, **order_kwargs) -> OrderBase:
+    cls = ORDER_TYPES[order_type]
+    return cls(**order_kwargs)
