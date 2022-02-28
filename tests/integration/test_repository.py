@@ -30,3 +30,16 @@ def test_orders_backref(session, base_account, single_order, standing_order):
     session.commit()
     acc = accounts_repo.get(base_account.id_)
     assert acc.assets == [single_order, standing_order]
+
+def test_update_account(session, base_account):
+    id_ = base_account.id_
+    accounts_repo = SQLAlchemyAccountRepository(session)
+    accounts_repo.add(base_account)
+    session.commit()
+    acc = accounts_repo.get(id_)
+    acc.name = "Girokonto"
+    acc.interest_rate = 0.001
+    session.commit()
+    revived = accounts_repo.get(id_)
+    assert revived.name == "Girokonto"
+    assert revived.interest_rate == 0.001

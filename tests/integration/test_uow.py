@@ -27,7 +27,6 @@ def test_uow_can_get_backrefs(session_factory, base_account, single_order):
         uow_orders.orders.add(single_order)
     with uow_accounts:
         acc = uow_accounts.accounts.get(id_)
-        print()
     assert acc is not None
     assert acc.assets == [single_order]
 
