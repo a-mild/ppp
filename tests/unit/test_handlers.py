@@ -1,45 +1,50 @@
 from uuid import UUID
 
+from pension_planner.adapters.accounts_repo import AbstractAccountRepository
 from pension_planner.domain.account import Account
-from pension_planner.repository.account_repo import AbstractBankAccountRepository
 from pension_planner.service_layer import messagebus
 from pension_planner.domain.commands import OpenAccount
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
 
-class FakeBankAccountRepository(AbstractBankAccountRepository):
+class FakeBankAccountRepository(AbstractAccountRepository):
 
     def __init__(self):
         super().__init__()
         self.data: dict[UUID, Account] = {}
 
-    def _add(self, bank_account: Account) -> None:
-        id_ = bank_account.id_
-        self.data[id_] = bank_account
+    def _add(self, account: Account) -> None:
+        id_ = account.id_
+        self.data[id_] = account
 
     def _get(self, id_: UUID) -> Account:
         return self.data[id_]
 
-    def _delete(self, id_: UUID) -> Account:
-        return self.data.pop(id_)
 
-
-class FakeUnitOfWork(AbstractUnitOfWork):
+class FakeAccountsUnitOfWork(AbstractUnitOfWork):
 
     def __init__(self):
         self.accounts = FakeBankAccountRepository()
+        self.committed = False
 
     def commit(self):
-        pass
+        self.committed = True
 
     def rollback(self):
         pass
 
+    def collect_new_events(self):
+        for account in self.accounts.seen:
+            while account.events:
+                yield account.events.pop(0)
+
 
 def test_open_bank_account():
-    uow = FakeUnitOfWork()
-    command = OpenAccount(name="test")
+    uow = FakeAccountsUnitOfWork()
+    command = OpenAccount()
     [account] = messagebus.handle(command, uow=uow)
+    assert uow.committed is True
     assert account.name == command.name
-    assert account.orders == command.orders
+    assert account.assets == command.assets
+    assert account.liabilities == command.liabilities
     assert account.interest_rate == command.interest_rate

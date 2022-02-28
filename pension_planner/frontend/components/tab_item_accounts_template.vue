@@ -4,15 +4,33 @@
         Account eröffnen
     </v-btn>
     <v-divider></v-divider>
-    <v-text-field
-        label="Kontoname"
-        v-model="account_name"
-    >
-    </v-text-field>
-    <v-text-field
-        type="number"
-        label="Zinsen [% p.a.]"
-        v-model="interest_rate"
-    >
-    </v-text-field>
+    <v-container>
+        <v-row>
+            <v-tabs-items v-model="tab">
+                <v-tab-item v-for="(acc, id) in accounts">
+                    <v-text-field
+                        label="Kontoname"
+                        v-model="acc.name"
+                        @input="update_name(acc)"
+                    >
+                    </v-text-field>
+                    <v-text-field
+                        type="number"
+                        label="Zinsen [% p.a.]"
+                        v-model="acc.interest_rate"
+                        @input="update_interest_rate(acc)"
+                    >
+                    </v-text-field>
+                </v-tab-item>
+            </v-tabs-items>
+        </v-row>
+        <v-row>
+            <v-tabs v-model="tab" vertical>
+                <v-tab v-for="(acc, id) in accounts">
+                    {{ acc.name }}
+                </v-tab>
+            </v-tabs>
+        </v-row>
+        <v-container>
+        {{output}}
 </div>

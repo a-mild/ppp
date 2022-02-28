@@ -50,16 +50,5 @@
             <v-icon>mdi-content-save</v-icon>
         </v-btn>
         <jupyter-widget :widget="file_download_dummy_outputwidget" />
-        <template v-slot:extension>
-        <v-tabs v-model="active_tab" @change="active_tab_changed">
-          <v-tab v-for="item in accounts" @change="tab_clicked(item.id_)">
-            {{item.name}}
-          </v-tab>
-          <v-btn @click="add_bank_account()">
-            <v-icon left>mdi-plus-circle</v-icon>
-            neues Konto
-          </v-btn>
-        </v-tabs>
-      </template>
     </v-app-bar>
 </template>

@@ -13,7 +13,7 @@ from pension_planner.domain.account import Account
 from pension_planner.frontend.components import COMPONENTS_DIR
 from pension_planner.domain.commands import ToggleDrawer
 from pension_planner.service_layer.messagebus import handle
-from pension_planner.service_layer.unit_of_work import InMemoryBankAccountRepositoryUnitOfWork
+from pension_planner.service_layer.unit_of_work import SQLAlchemyAccountsUnitOfWork
 
 """
 download stolen from https://github.com/voila-dashboards/voila/issues/711
@@ -42,24 +42,9 @@ class AppBar(v.VuetifyTemplate):
 
     def vue_toggle_drawer(self, data):
         logging.debug("Toggle drawer clicked")
-        uow = InMemoryBankAccountRepositoryUnitOfWork()
+        uow = SQLAlchemyAccountsUnitOfWork()
         command = ToggleDrawer()
         handle(command, uow)
-
-    def vue_active_tab_changed(self, data):
-        logging.debug(f"Tab changed: {data!r}")
-        logging.debug(f"Active tab: {self.active_tab!r}")
-
-
-    def vue_select_account(self, id_: str):
-        pass
-
-    def vue_add_bank_account(self, data):
-        event = events.OpenAccount()
-        uow = InMemoryBankAccountRepositoryUnitOfWork()
-        results: list[Account] = handle(event, uow)
-        new_accounts = [{"id_": str(acc.id_), "name": acc.name} for acc in results]
-        self.accounts = self.accounts + new_accounts
 
     def vue_reset_traces(self, data=None):
         self.reset_traces_dialog = False

@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
-from pension_planner.adapters.orm import metadata, start_mappings
+from pension_planner.adapters.orm import metadata, start_mappers
 from pension_planner.domain.account import Account
 from pension_planner.domain.orders import SingleOrder, StandingOrder
 
@@ -17,7 +17,7 @@ def in_memory_sqlite_db():
 
 @pytest.fixture
 def session_factory(in_memory_sqlite_db):
-    start_mappings()
+    start_mappers()
     yield sessionmaker(bind=in_memory_sqlite_db, future=True, expire_on_commit=False)
     clear_mappers()
 
