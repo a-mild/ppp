@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from pension_planner.domain.account import Account
 
@@ -43,5 +43,7 @@ class SQLAlchemyAccountRepository(AbstractAccountRepository):
         self.session.add(account)
 
     def _get(self, id_: UUID) -> Account:
-        stmt = select(Account).filter_by(id_=id_)
+        stmt = (select(Account)
+                .options(joinedload(Account.assets), joinedload(Account.liabilities))
+                .filter_by(id_=id_))
         return self.session.execute(stmt).scalars().first()

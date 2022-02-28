@@ -8,8 +8,9 @@ from pension_planner.domain.commands import Command
 @dataclass
 class Account:
     name: str
-    orders: list[UUID]
     interest_rate: float
+    assets: list[OrderBase] #= field(default_factory=list)
+    liabilities: list[OrderBase] #= field(default_factory=list)
     id_: UUID = field(default_factory=uuid4)
     events: list[Command] = field(default_factory=list, init=False)
 

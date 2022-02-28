@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from pension_planner import config
 from pension_planner.adapters.accounts_repo import SQLAlchemyAccountRepository
+from pension_planner.adapters.orders_repo import SQLAlchemyOrdersRepository
 from pension_planner.repository.account_repo import AbstractBankAccountRepository, InMemoryAccountRepository
 
 
@@ -36,11 +37,13 @@ class AbstractUnitOfWork(ABC):
 
 
 DEFAULT_SESSION_FACTORY = sessionmaker(
-    bind=create_engine(config.get_sqlite_uri())
+    bind=create_engine(config.get_sqlite_uri()),
+    future=True,
+    expire_on_commit=False
 )
 
 
-class SQLAlchemyUnitOfWork(AbstractUnitOfWork):
+class SQLAlchemyAccountsUnitOfWork(AbstractUnitOfWork):
 
     def __init__(self, session_factory=DEFAULT_SESSION_FACTORY):
         self.session_factory = session_factory
@@ -48,6 +51,27 @@ class SQLAlchemyUnitOfWork(AbstractUnitOfWork):
     def __enter__(self):
         self.session: Session = self.session_factory()
         self.accounts = SQLAlchemyAccountRepository(self.session)
+        return super().__enter__()
+
+    def __exit__(self, *args):
+        super().__exit__(*args)
+        self.session.close()
+
+    def commit(self):
+        self.session.commit()
+
+    def rollback(self):
+        self.session.rollback()
+
+
+class SQLAlchemyOrdersUnitOfWork(AbstractUnitOfWork):
+
+    def __init__(self, session_factory=DEFAULT_SESSION_FACTORY):
+        self.session_factory = session_factory
+
+    def __enter__(self):
+        self.session: Session = self.session_factory()
+        self.orders = SQLAlchemyOrdersRepository(self.session)
         return super().__enter__()
 
     def __exit__(self, *args):

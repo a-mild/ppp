@@ -18,7 +18,7 @@ def in_memory_sqlite_db():
 @pytest.fixture
 def session_factory(in_memory_sqlite_db):
     start_mappings()
-    yield sessionmaker(bind=in_memory_sqlite_db, future=True)
+    yield sessionmaker(bind=in_memory_sqlite_db, future=True, expire_on_commit=False)
     clear_mappers()
 
 @pytest.fixture
@@ -27,28 +27,32 @@ def session(session_factory):
 
 
 @pytest.fixture
-def account():
+def base_account() -> Account:
     return Account(
         name="Girokonto #1",
         interest_rate=0.0,
-        orders=[]
+        assets=list(),
+        liabilities=list()
     )
 
 @pytest.fixture
-def single_order() -> SingleOrder:
-    name = "single payment"
-    side = BalanceSheetSide.asset
-    ts = date(2022, 12, 1)
-    amount = 100.00
-    return SingleOrder(name=name, side=side, timestamp=ts, amount=amount)
-
+def single_order(base_account) -> SingleOrder:
+    return SingleOrder(
+        name="Einzelauftrag #1",
+        target_acc_id=base_account.id_,
+        from_acc_id=None,
+        date=date(2022, 12, 1),
+        amount=100.0
+    )
 
 
 @pytest.fixture
-def constant_payment() -> StandingOrder:
-    name = "constant payment"
-    side = BalanceSheetSide.asset
-    from_ts = date(2021, 1, 1)
-    until_ts = date(2022, 1, 1)
-    amount = 100
-    return StandingOrder(name=name, side=side, from_ts=from_ts, until_ts=until_ts, amount=amount)
+def standing_order(base_account) -> StandingOrder:
+    return StandingOrder(
+        name="Dauerauftrag #1",
+        target_acc_id=base_account.id_,
+        from_acc_id=None,
+        start_date=date(2021, 1, 1),
+        end_date=date(2022, 1, 1),
+        amount=100.0
+    )
