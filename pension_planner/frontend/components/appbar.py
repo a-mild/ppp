@@ -1,5 +1,3 @@
-import logging
-
 import traitlets
 
 import ipywidgets as widgets
@@ -9,11 +7,9 @@ from IPython.core.display import display
 from IPython.display import HTML, clear_output
 from base64 import b64encode
 
-from pension_planner.domain.account import Account
+from pension_planner.bootstrap import bus
 from pension_planner.frontend.components import COMPONENTS_DIR
 from pension_planner.domain.commands import ToggleDrawer
-from pension_planner.service_layer.messagebus import handle
-from pension_planner.service_layer.unit_of_work import SQLAlchemyAccountsUnitOfWork
 
 """
 download stolen from https://github.com/voila-dashboards/voila/issues/711
@@ -41,10 +37,8 @@ class AppBar(v.VuetifyTemplate):
         self.file_upload_widget.observe(self.upload_traces, "value")
 
     def vue_toggle_drawer(self, data):
-        logging.debug("Toggle drawer clicked")
-        uow = SQLAlchemyAccountsUnitOfWork()
         command = ToggleDrawer()
-        handle(command, uow)
+        bus.handle(command)
 
     def vue_reset_traces(self, data=None):
         self.reset_traces_dialog = False
@@ -71,5 +65,4 @@ class AppBar(v.VuetifyTemplate):
 
     def vue_save_traces(self, event):
         """Save the state of all traces to a .json file"""
-        #save_traces.send()
         pass

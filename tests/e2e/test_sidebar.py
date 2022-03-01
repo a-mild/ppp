@@ -10,6 +10,7 @@ def tab_item_accounts() -> TabItemAccounts:
 
 class TestTabItemAccounts:
 
+    # TODO: use mock for bus here ...
     def test_open_account(self, tab_item_accounts):
         tab_item_accounts.vue_open_account()
         assert len(tab_item_accounts.accounts) > 0

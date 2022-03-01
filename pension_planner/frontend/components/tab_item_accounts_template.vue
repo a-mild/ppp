@@ -31,6 +31,5 @@
                 </v-tab>
             </v-tabs>
         </v-row>
-        <v-container>
-        {{output}}
+    <v-container>
 </div>

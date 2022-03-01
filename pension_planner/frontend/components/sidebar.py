@@ -1,22 +1,20 @@
 import logging
-from dataclasses import asdict
+from uuid import UUID
 
 import ipyvuetify as v
 import traitlets
 
-from pension_planner.adapters import orm
+from pension_planner import views
+from pension_planner.bootstrap import bus
+from pension_planner.domain import commands
 from pension_planner.domain.commands import OpenAccount
 from pension_planner.frontend.components import COMPONENTS_DIR
 
-from pension_planner.service_layer.messagebus import handle
-from pension_planner.service_layer.unit_of_work import SQLAlchemyAccountsUnitOfWork
-
-
-orm.start_mappers()
 
 
 class AccountEditor(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "account_editor_template.vue")
+
 
 ACCOUNT_DATA = {
     "1": {"id_": 1,
@@ -36,25 +34,30 @@ class TabItemAccounts(v.VuetifyTemplate):
     accounts = traitlets.Dict().tag(sync=True)
     account_name = traitlets.Unicode().tag(sync=True)
     interest_rate = traitlets.Float().tag(sync=True)
-    # components = traitlets.Dict({
-    #     "account-editor": AccountEditor
-    # }).tag(sync=True, **v.VuetifyTemplate.class_component_serialization)
-    output = traitlets.Any().tag(sync=True)
 
     def vue_open_account(self, data=None):
-        self.output = f"Open account"
-        command = OpenAccount()
-        uow = SQLAlchemyAccountsUnitOfWork()
-        [account] = handle(command, uow)
-        self.output = f"{account!r}"
-        self.accounts = self.accounts | {account.id_: asdict(account)}
-        self.output = f"{self.accounts!r}"
+        command = commands.OpenAccount()
+        [id_] = bus.handle(command)
+        acc = views.account_data(id_, bus.uow)
+        self.accounts = self.accounts | {str(id_): acc}
 
     def vue_update_name(self, acc):
         self.output = f"Change name: {acc!r}"
+        command = commands.UpdateAccountAttribute(
+            id_=UUID(acc.id_),
+            attribute="name",
+            new_value=acc.get("name")
+        )
+        bus.handle(command)
 
     def vue_update_interest_rate(self, acc):
         self.output = f"Change interest: {acc!r}"
+        command = commands.UpdateAccountAttribute(
+                    id_=UUID(acc.id_),
+                    attribute="interest_rate",
+                    new_value=acc.get("interest_rate")
+                )
+        bus.handle(command)
 
 
 class TabItemOrders(v.VuetifyTemplate):
@@ -63,7 +66,6 @@ class TabItemOrders(v.VuetifyTemplate):
 
 class SideBar(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "sidebar_template.vue")
-    #order_types = traitlets.List(default_value=list(ORDER_TYPES.keys())).tag(sync=True)
 
     drawer_open = traitlets.Bool(default_value=False).tag(sync=True)
     components = traitlets.Dict({

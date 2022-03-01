@@ -15,6 +15,7 @@ def in_memory_sqlite_db():
     metadata.create_all(engine)
     return engine
 
+
 @pytest.fixture
 def session_factory(in_memory_sqlite_db):
     start_mappers()

@@ -1,5 +1,6 @@
 import logging
 
+from pension_planner.bootstrap import bootstrap
 from pension_planner.frontend.components.sidebar import SideBar
 
 logger = logging.getLogger()
@@ -29,10 +30,8 @@ class App(v.VuetifyTemplate):
         </template>
     """).tag(sync=True)
 
-
     def __init__(self):
         self.sidebar = SideBar()
         self.appbar = AppBar()
         #self.plot_container = PlotContainer(model)
         super().__init__()
-        logger.debug("App initialized")
