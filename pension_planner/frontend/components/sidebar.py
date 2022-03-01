@@ -7,9 +7,7 @@ import traitlets
 from pension_planner import views
 from pension_planner.bootstrap import bus
 from pension_planner.domain import commands
-from pension_planner.domain.commands import OpenAccount
 from pension_planner.frontend.components import COMPONENTS_DIR
-
 
 
 class AccountEditor(v.VuetifyTemplate):
@@ -32,8 +30,6 @@ class TabItemAccounts(v.VuetifyTemplate):
     tab = traitlets.Any().tag(sync=True)
 
     accounts = traitlets.Dict().tag(sync=True)
-    account_name = traitlets.Unicode().tag(sync=True)
-    interest_rate = traitlets.Float().tag(sync=True)
 
     def vue_open_account(self, data=None):
         command = commands.OpenAccount()
