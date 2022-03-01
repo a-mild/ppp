@@ -22,6 +22,7 @@ def session_factory(in_memory_sqlite_db):
     yield sessionmaker(bind=in_memory_sqlite_db, future=True, expire_on_commit=False)
     clear_mappers()
 
+
 @pytest.fixture
 def session(session_factory):
     return session_factory()

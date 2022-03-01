@@ -26,8 +26,8 @@ def bootstrap(
         orm.start_mappers()
     command_handlers = {command: inject_dependency(handler_cls, dependencies)
                         for command, handler_cls in handlers.COMMAND_HANDLERS.items()}
-    event_handlers = {event: inject_dependency(handler_cls, dependencies)
-                      for event, handler_cls in handlers.EVENT_HANDLERS.items()}
+    event_handlers = {event: [inject_dependency(handler_cls, dependencies) for handler_cls in handler_classes]
+                      for event, handler_classes in handlers.EVENT_HANDLERS.items()}
     return MessageBus(
         uow=dependencies[AbstractUnitOfWork],
         command_handlers=command_handlers,

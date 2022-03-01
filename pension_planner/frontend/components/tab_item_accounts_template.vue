@@ -1,6 +1,6 @@
 <div>
     <v-btn @click="open_account">
-        <v-icon>mdi-circle-plus</v-icon>
+        <v-icon>mdi-plus-box</v-icon>
         Account eröffnen
     </v-btn>
     <v-divider></v-divider>

@@ -35,3 +35,6 @@ class App(v.VuetifyTemplate):
         self.appbar = AppBar()
         #self.plot_container = PlotContainer(model)
         super().__init__()
+
+
+THE_APP = App()

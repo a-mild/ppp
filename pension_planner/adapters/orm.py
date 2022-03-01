@@ -7,7 +7,7 @@ With inspiration from https://stackoverflow.com/questions/66921914/using-polymor
 import uuid
 from uuid import UUID
 
-from sqlalchemy import Table, Column, TypeDecorator, CHAR, Unicode, Float, ForeignKey, Date, or_
+from sqlalchemy import Table, Column, TypeDecorator, CHAR, Unicode, Float, ForeignKey, Date, or_, event
 from sqlalchemy.orm import registry, relationship, backref, foreign
 
 from pension_planner.domain.account import Account
@@ -123,3 +123,9 @@ def start_mappers():
         polymorphic_identity="standing_order"
     )
 
+
+@event.listens_for(Account, "load")
+@event.listens_for(SingleOrder, "load")
+@event.listens_for(StandingOrder, "load")
+def receive_load(entity, _):
+    entity.events = []
