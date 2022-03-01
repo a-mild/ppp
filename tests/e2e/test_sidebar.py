@@ -1,6 +1,5 @@
 import pytest
 
-from pension_planner.adapters import orm
 from pension_planner.frontend.components.sidebar import TabItemAccounts
 
 

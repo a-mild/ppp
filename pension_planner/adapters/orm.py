@@ -90,7 +90,7 @@ standing_order_table = Table(
 )
 
 
-def start_mappings():
+def start_mappers():
     mapper_registry.map_imperatively(
         Account,
         account_table,
