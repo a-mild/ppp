@@ -51,3 +51,7 @@ class StandingOrder(OrderBase):
 def order_factory(order_type: str, **order_kwargs) -> OrderBase:
     cls = ORDER_TYPES[order_type]
     return cls(**order_kwargs)
+
+
+ORDER_ATTRIBUTES = ((SingleOrder.__dataclass_fields__.keys() | StandingOrder.__dataclass_fields__.keys())
+                    - set(["id_", "events"]))

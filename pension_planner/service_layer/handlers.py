@@ -67,21 +67,6 @@ class PlaceStandingOrderHandler:
             return standing_order.id_
 
 
-class UpdateOrderEditor:
-
-    def __init__(self, uow: AbstractUnitOfWork):
-        self.uow = uow
-
-    def __call__(self, event: events.AccountOpened):
-        from pension_planner.frontend.app import THE_APP
-
-        tab_item_orders = THE_APP.sidebar.tab_item_orders
-        order = views.fetch_order(event.id_, self.uow)
-        accounts = views.fetch_all_accounts(self.uow)
-        tab_item_orders.selected_id = str(event.id_)
-        tab_item_orders.control_widgets = utils.build_widgets_list(order, accounts, tab_item_orders)
-
-
 class UpdateOrderAttributeHandler:
 
     def __init__(self, uow: AbstractUnitOfWork):
@@ -95,6 +80,18 @@ class UpdateOrderAttributeHandler:
                 new_value=command.new_value)
 
 
+class UpdateDropdownOptions:
+
+    def __init__(self, uow: AbstractUnitOfWork):
+        self.uow = uow
+
+    def __call__(self, event: events.Event):
+        from pension_planner.frontend.app import THE_APP
+        tab_item_orders = THE_APP.sidebar.tab_item_orders
+
+        tab_item_orders.update_dropdown_options(self.uow)
+
+
 COMMAND_HANDLERS = {
     commands.ToggleDrawer: ToggleDrawerHandler,
     commands.OpenAccount: OpenAccountHandler,
@@ -105,6 +102,6 @@ COMMAND_HANDLERS = {
 }
 
 EVENT_HANDLERS = {
-    events.AccountOpened: [UpdateOrderEditor],
-    events.OrderCreated: [UpdateOrderEditor],
+    events.AccountOpened: [UpdateDropdownOptions],
+    events.OrderCreated: [],
 }

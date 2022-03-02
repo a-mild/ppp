@@ -119,6 +119,7 @@ def start_mappers():
     )
     standing_order_mapping = mapper_registry.map_imperatively(
         StandingOrder,
+        standing_order_table,
         inherits=orders_mapping,
         polymorphic_identity="standing_order"
     )

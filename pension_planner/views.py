@@ -1,11 +1,11 @@
 from dataclasses import asdict
-from typing import Any
+from typing import Any, Union
 from uuid import UUID
 
 from sqlalchemy import select
 
 from pension_planner.domain.account import Account
-from pension_planner.domain.orders import OrderBase
+from pension_planner.domain.orders import OrderBase, SingleOrder, StandingOrder
 from pension_planner.service_layer.unit_of_work import SQLAlchemyUnitOfWork
 
 
