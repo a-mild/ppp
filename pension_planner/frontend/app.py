@@ -1,11 +1,9 @@
 import logging
 
-from pension_planner.bootstrap import bootstrap
-from pension_planner.frontend.components.sidebar import SideBar
+from pension_planner.frontend.components.sidebar.sidebar import SideBar
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-
 
 import ipyvuetify as v
 import ipywidgets as w
@@ -33,7 +31,7 @@ class App(v.VuetifyTemplate):
     def __init__(self):
         self.sidebar = SideBar()
         self.appbar = AppBar()
-        #self.plot_container = PlotContainer(model)
+        # self.plot_container = PlotContainer(model)
         super().__init__()
 
 

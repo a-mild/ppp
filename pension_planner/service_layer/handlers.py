@@ -1,11 +1,14 @@
 from dataclasses import asdict
 from uuid import UUID
 
+from ipyvue import VueWidget
+
 from pension_planner import views
 from pension_planner.domain import commands, events
 from pension_planner.domain.account import Account
-from pension_planner.domain.orders import SingleOrder, StandingOrder
+from pension_planner.domain.orders import SingleOrder, StandingOrder, ORDER_ATTRIBUTES
 from pension_planner.frontend import utils
+from pension_planner.frontend.components.sidebar.tab_item_orders.overview import AccountExpansionPanel
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
 
@@ -92,6 +95,43 @@ class UpdateDropdownOptions:
         tab_item_orders.update_dropdown_options(self.uow)
 
 
+class UpdateOverview:
+
+    def __init__(self, uow: AbstractUnitOfWork):
+        self.uow = uow
+
+    def __call__(self, event: events.AccountOpened):
+        from pension_planner.frontend.app import THE_APP
+
+        overview = THE_APP.sidebar.tab_item_orders.overview
+
+        account = views.fetch_account(event.id_, self.uow)
+        overview.output = f"{account!r}"
+        overview.accounts[account["id_"]] = AccountExpansionPanel(name=account["name"])
+
+
+class UpdateOrderEditor:
+
+    def __init__(self, uow: AbstractUnitOfWork):
+        self.uow = uow
+
+    def __call__(self, event: events.OrderCreated):
+        from pension_planner.frontend.app import THE_APP
+
+        order_editor = THE_APP.sidebar.tab_item_orders.order_editor
+        order = views.fetch_order(event.id_, self.uow)
+        order_editor.loading_new_order = True
+        for attribute, value in order.items():
+            if attribute not in ORDER_ATTRIBUTES:
+                continue
+            widget = getattr(order_editor, attribute)
+            if isinstance(widget, VueWidget):
+                setattr(widget, "v_model", value)
+            else:
+                setattr(widget, "value", value)
+        order_editor.loading_new_order = False
+
+
 COMMAND_HANDLERS = {
     commands.ToggleDrawer: ToggleDrawerHandler,
     commands.OpenAccount: OpenAccountHandler,
@@ -101,7 +141,8 @@ COMMAND_HANDLERS = {
     commands.UpdateOrderAttribute: UpdateOrderAttributeHandler
 }
 
+
 EVENT_HANDLERS = {
-    events.AccountOpened: [UpdateDropdownOptions],
-    events.OrderCreated: [],
+    events.AccountOpened: [UpdateOverview],
+    events.OrderCreated: [UpdateOrderEditor],
 }
