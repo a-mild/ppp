@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import ipywidgets as w
 import ipyvuetify as v
 from traitlets import traitlets
@@ -9,9 +11,9 @@ from pension_planner.frontend.utils import MutableDict
 class OrderCard(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "sidebar" / "tab_item_orders" / "order_card_template.vue")
 
-    id_ = traitlets.Unicode().tag(sync=True)
     name = traitlets.Unicode().tag(sync=True)
     show_details = traitlets.Bool(False).tag(sync=True)
+    id_ = traitlets.Any()
 
 
 class AccountExpansionPanel(v.VuetifyTemplate):

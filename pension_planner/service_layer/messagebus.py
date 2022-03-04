@@ -12,10 +12,14 @@ Message = Union[commands.Command, events.Event]
 
 class MessageBus:
 
-    def __init__(self, uow: AbstractUnitOfWork, command_handlers, event_handlers):
+    def __init__(self,
+                 uow: AbstractUnitOfWork,
+                 command_handlers,
+                 event_handlers):
         self.uow = uow
         self.command_handlers = command_handlers
         self.event_handlers = event_handlers
+        self.queue = None
 
     def handle(self, message: Message):
         results = []

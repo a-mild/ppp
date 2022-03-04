@@ -1,5 +1,6 @@
 import logging
 
+from pension_planner.frontend.components.main.main import Main
 from pension_planner.frontend.components.sidebar.sidebar import SideBar
 
 logger = logging.getLogger()
@@ -31,7 +32,7 @@ class App(v.VuetifyTemplate):
     def __init__(self):
         self.sidebar = SideBar()
         self.appbar = AppBar()
-        # self.plot_container = PlotContainer(model)
+        self.main = Main()
         super().__init__()
 
 

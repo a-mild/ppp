@@ -1,9 +1,12 @@
+<template>
 <v-card>
-    <v-card-title>{{name}}</v-card-title>
+    <v-card-title style="font-size: 1.0em">{{name}}</v-card-title>
     <v-card-actions>
       <v-btn
         text
+        x-small
       >
+        <v-icon>mdi-pencil</v-icon>
         Edit
       </v-btn>
 
@@ -26,3 +29,4 @@
       </div>
     </v-expand-transition>
 </v-card>
+</template>

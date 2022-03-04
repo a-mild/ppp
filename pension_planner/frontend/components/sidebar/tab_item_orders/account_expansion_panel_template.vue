@@ -14,7 +14,7 @@
                  <v-col >
                      <v-row>Auszahlungen</v-row>
                      <v-row v-for="liability in liabilities">
-                         <jupyter-widget :widget="liabilitiy" />
+                         <jupyter-widget :widget="liability" />
                      </v-row>
                  </v-col>
              </v-row>

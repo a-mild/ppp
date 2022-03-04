@@ -7,7 +7,7 @@
     <v-container>
         <v-row>
             <v-tabs-items v-model="tab">
-                <v-tab-item v-for="(acc, id) in accounts">
+                <v-tab-item v-for="(acc, id_) in accounts">
                     <v-text-field
                         label="Kontoname"
                         v-model="acc.name"

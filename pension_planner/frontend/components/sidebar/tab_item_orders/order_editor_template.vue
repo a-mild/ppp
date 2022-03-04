@@ -20,4 +20,5 @@
     <v-row>
         <jupyter-widget :widget="amount" />
     </v-row>
+    {{output}}
 </v-container>

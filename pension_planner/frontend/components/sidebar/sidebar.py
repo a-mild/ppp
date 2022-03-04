@@ -14,8 +14,13 @@ class SideBar(v.VuetifyTemplate):
 
     drawer_open = traitlets.Bool(default_value=False).tag(sync=True)
 
-    tab_item_accounts = traitlets.Any(TabItemAccounts()).tag(sync=True, **w.widget_serialization)
-    tab_item_orders = traitlets.Any(TabItemOrders()).tag(sync=True, **w.widget_serialization)
+    tab_item_accounts = traitlets.Any().tag(sync=True, **w.widget_serialization)
+    tab_item_orders = traitlets.Any().tag(sync=True, **w.widget_serialization)
+
+    def __init__(self, *args, **kwargs):
+        self.tab_item_accounts = TabItemAccounts()
+        self.tab_item_orders = TabItemOrders()
+        super().__init__(*args, **kwargs)
 
     def toggle_drawer(self):
         self.drawer_open = not self.drawer_open

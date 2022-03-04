@@ -13,7 +13,7 @@ def fetch_account(id_: UUID, uow: SQLAlchemyUnitOfWork) -> dict[str, Any]:
     with uow:
         stmt = select(Account).filter_by(id_=id_)
         [account] = uow.session.execute(stmt).one_or_none()
-        return {"id_": str(account.id_),
+        return {"id_": account.id_,
                 "name": account.name,
                 "interest_rate": account.interest_rate}
 

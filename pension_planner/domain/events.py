@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 from uuid import UUID
 
 
@@ -14,3 +15,11 @@ class AccountOpened(Event):
 @dataclass(frozen=True)
 class OrderCreated(Event):
     id_: UUID
+
+
+@dataclass(frozen=True)
+class OrderAttributeUpdated(Event):
+    order_id: UUID
+    attribute: str
+    old_value: Any
+    new_value: Any

@@ -20,6 +20,7 @@ class TabItemAccounts(v.VuetifyTemplate):
         command = commands.OpenAccount()
         [id_] = bus.handle(command)
         acc = views.fetch_account(id_, bus.uow)
+        acc.pop("id_")
         self.accounts = self.accounts | {str(id_): acc}
 
     def vue_update_name(self, acc):

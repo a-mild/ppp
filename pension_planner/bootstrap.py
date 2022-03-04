@@ -5,15 +5,18 @@ from sqlalchemy.orm import sessionmaker
 
 from pension_planner import config
 from pension_planner.adapters import orm
+from pension_planner.domain.bank_statement_service import PandasBankStatementRepository, AbstractBankStatementRepository
 from pension_planner.service_layer import handlers
 from pension_planner.service_layer.messagebus import MessageBus
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork, SQLAlchemyUnitOfWork
 
 engine = create_engine(config.get_sqlite_uri())
 
+
 DependencyMapping = {
     AbstractUnitOfWork: SQLAlchemyUnitOfWork(
-        session_factory=sessionmaker(bind=engine, future=True, expire_on_commit=False))
+        session_factory=sessionmaker(bind=engine, future=True, expire_on_commit=False)),
+    AbstractBankStatementRepository: PandasBankStatementRepository()
 }
 
 

@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker, clear_mappers
 from pension_planner.adapters.orm import metadata, start_mappers
 from pension_planner.adapters.repositories import AbstractRepository
 from pension_planner.bootstrap import bootstrap
+from pension_planner.domain import events
 from pension_planner.domain.account import Account
 from pension_planner.domain.orders import SingleOrder, StandingOrder, OrderBase
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
@@ -16,7 +17,7 @@ from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
 @pytest.fixture
 def in_memory_sqlite_db():
-    engine = create_engine("sqlite+pysqlite:///:memory:")
+    engine = create_engine("sqlite+pysqlite:///:memory:", echo=True)
     metadata.create_all(engine)
     return engine
 
@@ -45,19 +46,22 @@ class FakeRepository(AbstractRepository):
 
     def _add(self, entity: Entity) -> None:
         id_ = entity.id_
-        if isinstance(entity, Account):
-            self.data[id_] = entity
-        elif isinstance(entity, OrderBase):
-            self.data[id_] = entity
+        self.data[id_] = entity
 
     def _get(self, id_: UUID) -> Entity:
-        return self.data[id_]
+        return self.data.get(id_, None)
+
+    def _delete(self, id_: UUID) -> Entity | None:
+        return self.data.pop(id_, None)
 
     def _update(self, id_: UUID, attribute: str, new_value: Any) -> Entity:
         entity = self.data.get(id_)
         if not entity:
             return
         setattr(entity, attribute, new_value)
+        if isinstance(entity, OrderBase):
+            event = events.OrderAttributeUpdated(id_=id_, attribute=attribute, new_value=new_value)
+            entity.events.append(event)
         return entity
 
 
@@ -111,10 +115,10 @@ def base_account() -> Account:
 def single_order(base_account) -> SingleOrder:
     return SingleOrder(
         name="Einzelauftrag #1",
-        target_acc_id=base_account.id_,
-        from_acc_id=None,
-        date=date(2022, 12, 1),
-        amount=100.0
+        target_acc_id=None,
+        from_acc_id=base_account.id_,
+        date=date(2021, 12, 1),
+        amount=1200.0
     )
 
 
@@ -125,6 +129,6 @@ def standing_order(base_account) -> StandingOrder:
         target_acc_id=base_account.id_,
         from_acc_id=None,
         start_date=date(2021, 1, 1),
-        end_date=date(2022, 1, 1),
+        end_date=date(2021, 12, 1),
         amount=100.0
     )
