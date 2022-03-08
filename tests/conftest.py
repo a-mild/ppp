@@ -27,7 +27,7 @@ def session_factory(in_memory_sqlite_db):
     return sessionmaker(
         bind=in_memory_sqlite_db,
         future=True,
-        # expire_on_commit=False
+        expire_on_commit=False
     )
 
 

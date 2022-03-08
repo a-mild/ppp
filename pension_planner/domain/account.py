@@ -13,8 +13,7 @@ class Account:
     assets: list[OrderBase] = field(default_factory=list)
     liabilities: list[OrderBase] = field(default_factory=list)
     id_: UUID = field(default_factory=uuid4)
-    events: list[Command] = field(default_factory=list, init=False)
-    _initialized: bool = field(default=False, init=False, repr=False)
+    events: list[Command] = field(default_factory=list, init=False, compare=False)
 
     def __post_init__(self):
         self._initialized = True

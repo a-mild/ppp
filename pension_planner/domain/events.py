@@ -27,7 +27,7 @@ class OrderCreated(Event):
 
 @dataclass(frozen=True)
 class OrderAttributeUpdated(Event):
-    order_id: UUID
+    id_: UUID
     attribute: str
     old_value: Any
     new_value: Any
