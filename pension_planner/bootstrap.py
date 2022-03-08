@@ -44,5 +44,4 @@ def inject_dependency(handler_cls, dependency_mapping):
             for arg_name, parameter in parameters.items()}
     return handler_cls(**args)
 
-
 bus = bootstrap()

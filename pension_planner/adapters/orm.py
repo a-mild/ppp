@@ -7,9 +7,9 @@ With inspiration from https://stackoverflow.com/questions/66921914/using-polymor
 import uuid
 from uuid import UUID
 
-from sqlalchemy import Table, Column, TypeDecorator, CHAR, Unicode, Float, ForeignKey, Date, or_, event
+from sqlalchemy import Table, Column, TypeDecorator, CHAR, Unicode, Float, ForeignKey, Date, event
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import registry, relationship, backref, foreign
+from sqlalchemy.orm import registry, relationship, backref
 
 from pension_planner.domain.account import Account
 from pension_planner.domain.orders import OrderBase, SingleOrder, StandingOrder
@@ -68,26 +68,33 @@ orders_table = Table(
     metadata,
     Column("id_", GUID(), primary_key=True),
     Column("name", Unicode),
-    Column("from_acc_id", ForeignKey("accounts.id_", ondelete='SET NULL')),
-    Column("target_acc_id", ForeignKey("accounts.id_", ondelete='SET NULL')),
+    Column("from_acc_id", ForeignKey("accounts.id_",
+                                     ondelete='SET NULL'
+                                     )),
+    Column("target_acc_id", ForeignKey("accounts.id_",
+                                       ondelete='SET NULL'
+                                       )),
+    Column("amount", Float),
     Column("type", Unicode)
 )
 
 single_order_table = Table(
     "single_orders",
     metadata,
-    Column("id_", ForeignKey("orders.id_", ondelete="CASCADE"), primary_key=True),
+    Column("id_", ForeignKey("orders.id_",
+                             # ondelete="CASCADE"
+                             ), primary_key=True),
     Column("date", Date),
-    Column("amount", Float)
 )
 
 standing_order_table = Table(
     "standing_orders",
     metadata,
-    Column("id_", ForeignKey("orders.id_", ondelete="CASCADE"), primary_key=True),
+    Column("id_", ForeignKey("orders.id_",
+                             # ondelete="CASCADE"
+                             ), primary_key=True),
     Column("start_date", Date),
     Column("end_date", Date),
-    Column("amount", Float),
 )
 
 
@@ -100,13 +107,13 @@ def start_mappers():
                 OrderBase,
                 backref=backref("target_acc"),
                 foreign_keys="OrderBase.target_acc_id",
-                cascade="all"
+                # cascade="all"
             ),
             "liabilities": relationship(
                 OrderBase,
                 backref=backref("from_acc"),
                 foreign_keys="OrderBase.from_acc_id",
-                cascade="all"
+                # cascade="all"
             ),
         }
         )
@@ -135,13 +142,13 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
-    dbapi_connection.commit()
+    # dbapi_connection.commit()
 
 
-@event.listens_for(Account, "load")
-@event.listens_for(OrderBase, "load")
-@event.listens_for(SingleOrder, "load")
-@event.listens_for(StandingOrder, "load")
-def receive_load(entity, _):
-    entity.events = []
-    entity._initialized = True
+# @event.listens_for(Account, "load")
+# @event.listens_for(OrderBase, "load")
+# @event.listens_for(SingleOrder, "load")
+# @event.listens_for(StandingOrder, "load")
+# def receive_load(entity, _):
+#     entity.events = []
+#     entity._initialized = True

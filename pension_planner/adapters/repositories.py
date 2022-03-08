@@ -58,11 +58,11 @@ class AbstractRepository(ABC):
 
 class SQLAlchemyAccountRepository(AbstractRepository):
 
-    def __init__(self, session: Session):
+    def __init__(self, session: Session) -> None:
         super().__init__()
         self.session = session
 
-    def _add(self, account: Account) -> None:
+    def _add(self, account: Account) -> UUID:
         self.session.add(account)
         return account.id_
 
@@ -100,10 +100,12 @@ class SQLAlchemyOrderRepository(AbstractRepository):
         return self.session.execute(stmt).scalars().first()
 
     def _delete(self, id_: UUID) -> None:
-        cls = self._get(id_).__class__
-        self.session.query(cls).filter_by(id_=id_).delete(synchronize_session="fetch")
-        # delete doesnt cascade, gotta do it manually
-        self.session.query(orders_table).filter_by(id_=id_).delete(synchronize_session="fetch")
+        # cls = self._get(id_).__class__
+        # self.session.query(cls).filter_by(id_=id_).delete(synchronize_session="fetch")
+        # # delete doesnt cascade, gotta do it manually
+        # self.session.query(orders_table).filter_by(id_=id_).delete(synchronize_session="fetch")
+        order = self._get(id_)
+        self.session.delete(order)
 
     def _update(self, id_: UUID, attribute: str, new_value: Any) -> OrderBase:
         order: OrderBase = self._get(id_)

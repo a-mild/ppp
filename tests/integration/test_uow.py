@@ -8,10 +8,10 @@ def test_uow_can_insert_account(session_factory, base_account):
     with uow:
         uow.accounts.add(base_account)
 
-    stmt = text("SELECT * FROM accounts")
     with session_factory() as session:
+        stmt = text("SELECT * FROM accounts")
         result = session.execute(stmt).all()
-        assert len(result) > 0
+    assert len(result) > 0
 
 def test_uow_can_update_attributes(session_factory, single_order):
     id_ = single_order.id_

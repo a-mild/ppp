@@ -1,12 +1,12 @@
 from datetime import date
-from typing import Union, Any
+from typing import Union, Any, Callable
 from uuid import UUID
 
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 
-from pension_planner.adapters.orm import metadata, start_mappers
+from pension_planner.adapters import orm
 from pension_planner.adapters.repositories import AbstractRepository
 from pension_planner.bootstrap import bootstrap
 from pension_planner.domain import events
@@ -18,15 +18,24 @@ from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 @pytest.fixture
 def in_memory_sqlite_db():
     engine = create_engine("sqlite+pysqlite:///:memory:", echo=True)
-    metadata.create_all(engine)
+    orm.metadata.create_all(engine)
     return engine
 
 
 @pytest.fixture
 def session_factory(in_memory_sqlite_db):
+    return sessionmaker(
+        bind=in_memory_sqlite_db,
+        future=True,
+        # expire_on_commit=False
+    )
+
+
+@pytest.fixture
+def mappers():
     clear_mappers()
-    start_mappers()
-    yield sessionmaker(bind=in_memory_sqlite_db, future=True, expire_on_commit=False)
+    orm.start_mappers()
+    yield
     clear_mappers()
 
 
@@ -103,32 +112,44 @@ def bus(fake_uow):
 
 
 @pytest.fixture
-def base_account() -> Account:
-    return Account(
-        name="Girokonto #1",
-        interest_rate=0.0,
-        assets=list(),
-        liabilities=list()
-    )
+def account_factory():
+    def _make_account():
+        return Account(
+            name="Girokonto #1",
+            interest_rate=0.0,
+        )
+    return _make_account
 
 @pytest.fixture
-def single_order(base_account) -> SingleOrder:
-    return SingleOrder(
-        name="Einzelauftrag #1",
-        target_acc_id=None,
-        from_acc_id=base_account.id_,
-        date=date(2021, 12, 1),
-        amount=1200.0
-    )
+def single_order_factory():
+    def _make_single_order(
+            from_acc_id=None, target_acc_id=None,
+            date_=date.today(),
+            amount=0.0
+    ) -> SingleOrder:
+        return SingleOrder(
+            name="Einzelauftrag #1",
+            from_acc_id=from_acc_id,
+            target_acc_id=target_acc_id,
+            date=date_,
+            amount=amount
+        )
+    return _make_single_order
 
 
 @pytest.fixture
-def standing_order(base_account) -> StandingOrder:
-    return StandingOrder(
-        name="Dauerauftrag #1",
-        target_acc_id=base_account.id_,
-        from_acc_id=None,
-        start_date=date(2021, 1, 1),
-        end_date=date(2021, 12, 1),
-        amount=100.0
-    )
+def standing_order_factory():
+    def _make_standing_order(
+            from_acc_id=None, target_acc_id=None,
+            start_date=date(2022, 1, 1), end_date=date(2022, 12, 1),
+            amount=100.0
+    ) -> StandingOrder:
+        return StandingOrder(
+            name="Dauerauftrag #1",
+            from_acc_id=from_acc_id,
+            target_acc_id=target_acc_id,
+            start_date=start_date,
+            end_date=end_date,
+            amount=amount
+        )
+    return _make_standing_order

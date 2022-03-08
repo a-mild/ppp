@@ -13,6 +13,14 @@ class AccountOpened(Event):
 
 
 @dataclass(frozen=True)
+class AccountAttributeUpdated(Event):
+    id_: UUID
+    attribute: str
+    old_value: Any
+    new_value: Any
+
+
+@dataclass(frozen=True)
 class OrderCreated(Event):
     id_: UUID
 
