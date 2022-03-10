@@ -2,10 +2,10 @@ import ipyvuetify as v
 import ipywidgets as w
 from traitlets import traitlets
 
-from pension_planner.frontend.components import COMPONENTS_DIR
-from pension_planner.frontend.components.sidebar.tab_item_orders.order_editor import OrderEditor
-from pension_planner.frontend.components.sidebar.tab_item_orders.overview import Overview
-from pension_planner.frontend.components.sidebar.tab_item_orders.place_order import PlaceOrder
+from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
+from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_orders.order_editor import OrderEditor
+from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_orders.overview import Overview
+from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_orders.place_order import PlaceOrder
 
 
 class TabItemOrders(v.VuetifyTemplate):

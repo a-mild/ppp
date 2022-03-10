@@ -4,10 +4,10 @@ from pension_planner import views
 from pension_planner.bootstrap import bus
 from pension_planner.domain.commands import OpenAccount, CreateSingleOrder, UpdateOrderAttribute
 from pension_planner.domain.orders import ORDER_ATTRIBUTES
-from pension_planner.frontend.app import THE_APP
-from pension_planner.frontend.components.sidebar.tab_item_accounts.tab_item_accounts import TabItemAccounts
-from pension_planner.frontend.components.sidebar.tab_item_orders.order_editor import OrderEditor
-from pension_planner.frontend.components.sidebar.tab_item_orders.tab_item_orders import TabItemOrders
+from pension_planner.frontend.ipyvuetify.components.app import THE_APP
+from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_accounts.tab_item_accounts import TabItemAccounts
+from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_orders.order_editor import OrderEditor
+from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_orders.tab_item_orders import TabItemOrders
 from pension_planner.service_layer.unit_of_work import SQLAlchemyUnitOfWork
 
 

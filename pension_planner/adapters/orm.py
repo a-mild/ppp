@@ -146,9 +146,8 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
 
 @event.listens_for(Account, "load")
-# @event.listens_for(OrderBase, "load")
 @event.listens_for(SingleOrder, "load")
-# @event.listens_for(StandingOrder, "load")
+@event.listens_for(StandingOrder, "load")
 def receive_load(entity, _):
     entity.events = []
     entity._initialized = True

@@ -7,8 +7,7 @@ from IPython.core.display import display
 from IPython.display import HTML, clear_output
 from base64 import b64encode
 
-from pension_planner.bootstrap import bus
-from pension_planner.frontend.components import COMPONENTS_DIR
+from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
 from pension_planner.domain.commands import ToggleDrawer
 
 """
@@ -17,7 +16,7 @@ download stolen from https://github.com/voila-dashboards/voila/issues/711
 
 
 class AppBar(v.VuetifyTemplate):
-    template_file = str(COMPONENTS_DIR / "appbar_template.vue")
+    template_file = str(COMPONENTS_DIR / "appbar" / "appbar_template.vue")
 
     reset_traces_dialog = traitlets.Bool(default_value=False).tag(sync=True)
 
@@ -36,7 +35,9 @@ class AppBar(v.VuetifyTemplate):
         super().__init__()
         self.file_upload_widget.observe(self.upload_traces, "value")
 
-    def vue_toggle_drawer(self, data):
+    def vue_toggle_drawer(self, _):
+        from pension_planner.bootstrap import bus
+
         command = ToggleDrawer()
         bus.handle(command)
 

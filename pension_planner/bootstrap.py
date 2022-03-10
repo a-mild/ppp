@@ -6,6 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from pension_planner import config
 from pension_planner.adapters import orm
 from pension_planner.domain.bank_statement_service import PandasBankStatementRepository, AbstractBankStatementRepository
+from pension_planner.frontend.interface import AbstractFrontendInterface
+from pension_planner.frontend.ipyvuetify.main import IPyVuetifyFrontend
 from pension_planner.service_layer import handlers
 from pension_planner.service_layer.messagebus import MessageBus
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork, SQLAlchemyUnitOfWork
@@ -13,16 +15,17 @@ from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork, SQLAl
 engine = create_engine(config.get_sqlite_uri())
 
 
-DependencyMapping = {
+
+default_dependencies = {
     AbstractUnitOfWork: SQLAlchemyUnitOfWork(
         session_factory=sessionmaker(bind=engine, future=True, expire_on_commit=False)),
-    AbstractBankStatementRepository: PandasBankStatementRepository()
+    AbstractFrontendInterface: IPyVuetifyFrontend(),
 }
 
 
 def bootstrap(
         start_orm=True,
-        dependencies=DependencyMapping,
+        dependencies=default_dependencies,
 ) -> MessageBus:
     if start_orm:
         orm.metadata.create_all(engine)
@@ -43,5 +46,6 @@ def inject_dependency(handler_cls, dependency_mapping):
     args = {arg_name: dependency_mapping[parameter.annotation]
             for arg_name, parameter in parameters.items()}
     return handler_cls(**args)
+
 
 bus = bootstrap()

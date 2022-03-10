@@ -1,18 +1,15 @@
 import logging
-from functools import partial
 from typing import Any
-from uuid import UUID
 
 import ipyvuetify as v
 import ipywidgets as w
-from ipyvue import VueWidget
 from traitlets import traitlets
 
 from pension_planner.bootstrap import bus
 from pension_planner.domain.commands import UpdateOrderAttribute
 from pension_planner.domain.orders import ORDER_ATTRIBUTES
-from pension_planner.frontend.components import COMPONENTS_DIR
-from pension_planner.frontend.utils import obtain_widget
+from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
+from pension_planner.frontend.ipyvuetify.utils import obtain_widget
 
 
 class OrderEditor(v.VuetifyTemplate):

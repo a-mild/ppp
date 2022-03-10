@@ -4,60 +4,60 @@ from pension_planner.domain.commands import OpenAccount, UpdateAccountAttribute,
 
 
 # TODO need to fake out frontend or change handlers to make this test pass
-def test_open_bank_account(bus):
+def test_open_bank_account(fake_bus):
     command = OpenAccount()
-    [id_] = bus.handle(command)
-    assert bus.uow.committed is True
+    [id_] = fake_bus.handle(command)
+    assert fake_bus.uow.committed is True
     assert id_ is not None
 
 
-def test_update_account_attribute(bus):
+def test_update_account_attribute(fake_bus):
     # setup account
     command = OpenAccount()
-    [id_] = bus.handle(command)
+    [id_] = fake_bus.handle(command)
     command = UpdateAccountAttribute(
         id_=id_,
         attribute="name",
         new_value="Bankkonto #42"
     )
-    bus.handle(command)
-    assert bus.uow.committed is True
-    account = bus.uow.accounts.get(id_)
+    fake_bus.handle(command)
+    assert fake_bus.uow.committed is True
+    account = fake_bus.uow.accounts.get(id_)
     assert account.name == "Bankkonto #42"
 
 
-def test_close_account(bus):
+def test_close_account(fake_bus):
     # setup account
     command = OpenAccount()
-    [id_] = bus.handle(command)
-    bus.handle(commands.CloseAccount(id_=id_))
-    assert bus.uow.accounts.get(id_) is None
+    [id_] = fake_bus.handle(command)
+    fake_bus.handle(commands.CloseAccount(id_=id_))
+    assert fake_bus.uow.accounts.get(id_) is None
 
 
-def test_place_single_order(bus):
+def test_place_single_order(fake_bus):
     command = CreateSingleOrder()
-    [id_] = bus.handle(command)
-    assert bus.uow.committed is True
+    [id_] = fake_bus.handle(command)
+    assert fake_bus.uow.committed is True
     assert id_ is not None
 
 
-def test_place_standing_order(bus):
+def test_place_standing_order(fake_bus):
     command = CreateStandingOrder()
-    [id_] = bus.handle(command)
-    assert bus.uow.committed is True
+    [id_] = fake_bus.handle(command)
+    assert fake_bus.uow.committed is True
     assert id_ is not None
 
 
-def test_update_order_attribute(bus):
+def test_update_order_attribute(fake_bus):
     # setup account and order
-    [account_id] = bus.handle(OpenAccount())
-    [order_id] = bus.handle(CreateSingleOrder())
+    [account_id] = fake_bus.handle(OpenAccount())
+    [order_id] = fake_bus.handle(CreateSingleOrder())
     command = UpdateOrderAttribute(
         id_=order_id,
         attribute="from_acc_id",
         new_value=account_id
     )
-    bus.handle(command)
-    assert bus.uow.committed is True
-    order = bus.uow.orders.get(order_id)
+    fake_bus.handle(command)
+    assert fake_bus.uow.committed is True
+    order = fake_bus.uow.orders.get(order_id)
     assert order.from_acc_id == account_id

@@ -5,7 +5,7 @@ import ipyvuetify as v
 import ipywidgets as w
 from traitlets import traitlets
 
-from pension_planner.frontend.components import COMPONENTS_DIR
+from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
 
 df = px.data.medals_wide()
 test_figure = go.FigureWidget(px.bar(df, x="nation", y=["gold", "silver", "bronze"], title="Wide-Form Input"))

@@ -15,6 +15,8 @@ def test_uow_can_add_entities(sa_uow, session, account_factory, single_order_fac
     single_order = single_order_factory()
     standing_order = standing_order_factory()
     with sa_uow:
+        # prevent objects from being detached
+        sa_uow.session.expire_on_commit = False
         account_id = sa_uow.accounts.add(account)
         single_order_id = sa_uow.orders.add(single_order)
         standing_order_id = sa_uow.orders.add(standing_order)
@@ -29,9 +31,9 @@ def test_uow_can_add_entities(sa_uow, session, account_factory, single_order_fac
         single_order_revived, = session.execute(stmt).first()
         stmt = select(OrderBase).filter_by(id_=standing_order_id)
         standing_order_revived, = session.execute(stmt).first()
-    assert account_revived == account
-    assert single_order_revived == single_order
-    assert standing_order_revived == standing_order
+        assert account_revived == account
+        assert single_order_revived == single_order
+        assert standing_order_revived == standing_order
 
 
 def test_uow_can_collect_entity_created_events(sa_uow, account_factory, single_order_factory):

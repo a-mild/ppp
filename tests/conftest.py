@@ -11,6 +11,7 @@ from pension_planner.adapters.repositories import AbstractRepository
 from pension_planner.bootstrap import bootstrap
 from pension_planner.domain import events
 from pension_planner.domain.account import Account
+from pension_planner.domain.bank_statement_service import AbstractBankStatementRepository, PandasBankStatementRepository
 from pension_planner.domain.orders import SingleOrder, StandingOrder, OrderBase
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
@@ -27,7 +28,7 @@ def session_factory(in_memory_sqlite_db):
     return sessionmaker(
         bind=in_memory_sqlite_db,
         future=True,
-        expire_on_commit=False
+        # expire_on_commit=False
     )
 
 
@@ -101,13 +102,14 @@ def fake_uow():
 
 
 @pytest.fixture
-def bus(fake_uow):
+def fake_bus(fake_uow):
     dependencies = {
-        AbstractUnitOfWork: fake_uow
+        AbstractUnitOfWork: fake_uow,
+        AbstractBankStatementRepository: PandasBankStatementRepository(),
     }
     return bootstrap(
         start_orm=False,
-        dependencies=dependencies
+        dependencies=dependencies,
     )
 
 

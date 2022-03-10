@@ -1,4 +1,5 @@
 from datetime import date
+from uuid import uuid4
 
 import pytest
 from pension_planner.adapters.repositories import SQLAlchemyAccountRepository, SQLAlchemyOrderRepository
@@ -15,6 +16,15 @@ def test_sa_repo_can_add_account(sa_account_repo, account_factory):
     revived = sa_account_repo.get(acc_id)
     assert revived == acc
     assert revived.events == [AccountOpened(id_=acc_id)]
+
+
+def test_sa_repo_returns_none_for_nonexistent_account(sa_account_repo, account_factory):
+    acc = account_factory()
+    sa_account_repo.add(acc)
+    sa_account_repo.session.commit()
+    random_id = uuid4()
+    result = sa_account_repo.get(random_id)
+    assert result is None
 
 
 def test_rollback_does_not_add(sa_account_repo, account_factory):
@@ -70,6 +80,15 @@ def test_add_orders(sa_order_repo, single_order_factory, standing_order_factory)
     assert sa_order_repo.get(standing_order_id) == standing_order
 
 
+def test_sa_repo_returns_none_for_nonexistent_order(sa_order_repo, single_order_factory):
+    single_order = single_order_factory()
+    sa_order_repo.add(single_order)
+    sa_order_repo.session.commit()
+    random_id = uuid4()
+    result = sa_order_repo.get(random_id)
+    assert result is None
+
+
 def test_delete_orders(sa_order_repo, single_order_factory, standing_order_factory):
     single_order = single_order_factory()
     standing_order = standing_order_factory()
@@ -104,24 +123,6 @@ def test_update_order(sa_account_repo, sa_order_repo, single_order_factory, acco
     assert len(revived.events) == 5
 
 
-def test_delete_account_removes_backrefs(session, base_account, single_order):
-    # setup
-    accounts_repo = SQLAlchemyAccountRepository(session)
-    acc_id = accounts_repo.add(base_account)
-    accounts_repo.session.commit()
-    orders_repo = SQLAlchemyOrderRepository(session)
-    order_id = orders_repo.add(single_order)
-    orders_repo.session.commit()
-    order_revived = orders_repo.get(order_id)
-    assert order_revived.target_acc_id == base_account.id_
-    accounts_repo.delete(acc_id)
-    accounts_repo.session.commit()
-    order_revived = orders_repo.get(order_id)
-    orders_repo.session.commit()
-    assert order_revived is not None
-    assert order_revived.target_acc_id is None
-
-
 def test_can_backfill_account_assets_and_liabilities_when_adding_an_order(
         sa_account_repo, sa_order_repo, account_factory, single_order_factory
 ):
@@ -130,12 +131,14 @@ def test_can_backfill_account_assets_and_liabilities_when_adding_an_order(
     sa_account_repo.session.commit()
     order_1 = single_order_factory(from_acc_id=account_id)
     order_2 = single_order_factory(target_acc_id=account_id)
-    sa_order_repo.add(order_1)
-    sa_order_repo.add(order_2)
+    order_1_id = sa_order_repo.add(order_1)
+    order_2_id = sa_order_repo.add(order_2)
     sa_order_repo.session.commit()
+    order_1_revived = sa_order_repo.get(order_1_id)
+    order_2_revived = sa_order_repo.get(order_2_id)
     account_revived = sa_account_repo.get(account_id)
-    assert order_1 in account_revived.liabilities
-    assert order_2 in account_revived.assets
+    assert order_1_revived in account_revived.liabilities
+    assert order_2_revived in account_revived.assets
 
 
 def test_order_backref_resets_to_none_after_deleting_ref_account(

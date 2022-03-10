@@ -2,30 +2,11 @@
     <v-app-bar app>
         <v-app-bar-nav-icon @click.stop="toggle_drawer()"></v-app-bar-nav-icon>
         <v-toolbar-title class=".text-h5">
-                Pension Simulator
-                <div style="font-size: 0.6em">{{loaded_filename}}</div>
+                Pa's Pension Planner
+                <div style="font-size: 0.6em">{{ loaded_filename }}</div>
         </v-toolbar-title>
-        <v-menu offset-y>
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                        icon
-                        v-bind="attrs"
-                        v-on="on"
-                    >
-                        <v-icon>mdi-plus-box</v-icon>
-                    </v-btn>
-                </template>
-                <v-list>
-                    <v-list-item>
-                        <v-list-item-title>Test</v-list-item-title>
-                    </v-list-item>
-
-                    <v-list-item>
-                        <v-list-item-title>Test 2</v-list-item-title>
-                    </v-list-item>
-                </v-list>
-            </v-menu>
         <v-spacer></v-spacer>
+        <!--
         <v-dialog
             v-model="reset_traces_dialog"
             width="500"
@@ -70,5 +51,6 @@
             <v-icon>mdi-content-save</v-icon>
         </v-btn>
         <jupyter-widget :widget="file_download_dummy_outputwidget" />
+        -->
     </v-app-bar>
 </template>

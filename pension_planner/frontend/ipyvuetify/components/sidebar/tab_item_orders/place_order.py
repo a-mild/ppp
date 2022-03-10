@@ -4,7 +4,7 @@ from traitlets import traitlets
 from pension_planner.bootstrap import bus
 from pension_planner.domain.commands import CreateSingleOrder, CreateStandingOrder
 from pension_planner.domain.orders import ORDER_TYPES
-from pension_planner.frontend.components import COMPONENTS_DIR
+from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
 
 
 class PlaceOrder(v.VuetifyTemplate):

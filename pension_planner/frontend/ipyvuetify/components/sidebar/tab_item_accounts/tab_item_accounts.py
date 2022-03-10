@@ -6,7 +6,7 @@ import ipyvuetify as v
 from pension_planner import views
 from pension_planner.bootstrap import bus
 from pension_planner.domain import commands
-from pension_planner.frontend.components import COMPONENTS_DIR
+from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
 
 
 class TabItemAccounts(v.VuetifyTemplate):

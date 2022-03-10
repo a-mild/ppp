@@ -1,11 +1,9 @@
-from uuid import UUID
-
 import ipywidgets as w
 import ipyvuetify as v
 from traitlets import traitlets
 
-from pension_planner.frontend.components import COMPONENTS_DIR
-from pension_planner.frontend.utils import MutableDict
+from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
+from pension_planner.frontend.ipyvuetify.utils import MutableDict
 
 
 class OrderCard(v.VuetifyTemplate):
