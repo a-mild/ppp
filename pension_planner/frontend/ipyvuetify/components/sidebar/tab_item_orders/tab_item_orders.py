@@ -6,6 +6,7 @@ from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
 from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_orders.order_editor import OrderEditor
 from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_orders.overview import Overview
 from pension_planner.frontend.ipyvuetify.components.sidebar.tab_item_orders.place_order import PlaceOrder
+from pension_planner.service_layer.messagebus import MessageBus
 
 
 class TabItemOrders(v.VuetifyTemplate):
@@ -13,9 +14,10 @@ class TabItemOrders(v.VuetifyTemplate):
 
     place_order = traitlets.Any().tag(sync=True, **w.widget_serialization)
     order_editor = traitlets.Any().tag(sync=True, **w.widget_serialization)
-    overview = traitlets.Any().tag(sync=True, **w.widget_serialization)
+    #overview = traitlets.Any().tag(sync=True, **w.widget_serialization)
 
-    def __init__(self):
-        self.place_order = PlaceOrder()
-        self.order_editor = OrderEditor()
-        self.overview = Overview()
+    def __init__(self, bus: MessageBus):
+        self.place_order = PlaceOrder(bus)
+        self.order_editor = OrderEditor(bus)
+        # self.overview = Overview()
+        super().__init__()

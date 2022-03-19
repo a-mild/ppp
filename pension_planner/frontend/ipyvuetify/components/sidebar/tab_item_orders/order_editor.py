@@ -9,6 +9,7 @@ from pension_planner.domain.commands import UpdateOrderAttribute
 from pension_planner.domain.orders import ORDER_ATTRIBUTES
 from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
 from pension_planner.frontend.ipyvuetify.utils import obtain_widget
+from pension_planner.service_layer.messagebus import MessageBus
 
 
 class OrderEditor(v.VuetifyTemplate):
@@ -16,7 +17,8 @@ class OrderEditor(v.VuetifyTemplate):
 
     output = traitlets.Unicode().tag(sync=True)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, bus: MessageBus):
+        self.bus = bus
         self.stop_commands = None
         # dynamically construct widgets
         widgets = {parameter_name: obtain_widget(parameter_name)
@@ -24,7 +26,7 @@ class OrderEditor(v.VuetifyTemplate):
         new_traits = {parameter_name: traitlets.Any(widget).tag(sync=True, **w.widget_serialization)
                       for parameter_name, widget in widgets.items()}
         self.current_id = None
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self.add_traits(**new_traits)
         # link widgets
         self.name.observe(lambda e: self.on_attribute_change("name", e), names="v_model")
@@ -46,11 +48,10 @@ class OrderEditor(v.VuetifyTemplate):
     def on_attribute_change(self, attribute: str, change: Any):
         if self.stop_commands is True:
             return
-        from pension_planner.bootstrap import bus
 
         command = UpdateOrderAttribute(
             id_=self.current_id,
             attribute=attribute,
             new_value=change["new"])
-        bus.handle(command)
+        self.bus.handle(command)
 

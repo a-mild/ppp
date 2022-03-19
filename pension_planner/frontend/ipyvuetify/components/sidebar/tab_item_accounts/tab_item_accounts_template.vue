@@ -1,4 +1,4 @@
-<div id="tab-item_accounts">
+<div id="tab-item-accounts">
     <v-btn id="open_account" @click="open_account">
         <v-icon>mdi-plus-box</v-icon>
         Account eröffnen
