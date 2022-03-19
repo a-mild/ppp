@@ -1,5 +1,7 @@
 import logging
 
+from pension_planner.service_layer.messagebus import MessageBus
+
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
@@ -27,8 +29,8 @@ class App(v.VuetifyTemplate):
         </template>
     """).tag(sync=True)
 
-    def __init__(self):
-        self.sidebar = SideBar()
-        self.appbar = AppBar()
-        # self.main = Main()
+    def __init__(self, bus: MessageBus):
+        self.sidebar = SideBar(bus)
+        self.appbar = AppBar(bus)
+        # self.main = Main(bus)
         super().__init__()

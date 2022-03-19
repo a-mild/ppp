@@ -13,8 +13,10 @@
           <v-tab-item>
             <jupyter-widget :widget="tab_item_accounts">
           </v-tab-item>
+          <!--
           <v-tab-item>
             <jupyter-widget :widget="tab_item_orders">
           </v-tab-item>
+          -->
     </v-tabs>
 </v-navigation-drawer>

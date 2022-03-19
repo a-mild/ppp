@@ -20,6 +20,8 @@ class MessageBus:
         self.command_handlers = command_handlers
         self.event_handlers = event_handlers
         self.queue = None
+        self.command_history = []
+        self.event_history = []
 
     def handle(self, message: Message):
         results = []
@@ -42,6 +44,8 @@ class MessageBus:
             except Exception:
                 logging.exception(f"Exception handling {event!r}")
                 continue
+            else:
+                self.event_history.append(event)
 
     def handle_command(self, command: commands.Command) -> Any:
         logging.debug(f"Handling command {command!r}")
@@ -49,7 +53,9 @@ class MessageBus:
             handler = self.command_handlers[type(command)]
             result = handler(command)
             self.queue.extend(self.uow.collect_new_events())
-            return result
         except Exception:
             logging.exception(f"Exception handling {command!r}")
             raise
+        else:
+            self.command_history.append(command)
+            return result

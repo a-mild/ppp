@@ -5,7 +5,6 @@ import ipyvuetify as v
 import ipywidgets as w
 from traitlets import traitlets
 
-from pension_planner.bootstrap import bus
 from pension_planner.domain.commands import UpdateOrderAttribute
 from pension_planner.domain.orders import ORDER_ATTRIBUTES
 from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
@@ -47,9 +46,8 @@ class OrderEditor(v.VuetifyTemplate):
     def on_attribute_change(self, attribute: str, change: Any):
         if self.stop_commands is True:
             return
-        logging.debug(f"{self.current_id!r}")
-        logging.debug(f"{change!r}")
-        self.output = f"{attribute}, {change!r}"
+        from pension_planner.bootstrap import bus
+
         command = UpdateOrderAttribute(
             id_=self.current_id,
             attribute=attribute,

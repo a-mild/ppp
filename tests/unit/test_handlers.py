@@ -1,3 +1,5 @@
+import logging
+
 from pension_planner.domain import commands
 from pension_planner.domain.commands import OpenAccount, UpdateAccountAttribute, CreateSingleOrder, CreateStandingOrder, \
     UpdateOrderAttribute

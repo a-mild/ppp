@@ -1,6 +1,9 @@
 <template>
     <v-app-bar app>
-        <v-app-bar-nav-icon @click.stop="toggle_drawer()"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon
+            id="toggle_sidebar_button"
+            @click.stop="toggle_drawer()">
+        </v-app-bar-nav-icon>
         <v-toolbar-title class=".text-h5">
                 Pa's Pension Planner
                 <div style="font-size: 0.6em">{{ loaded_filename }}</div>

@@ -37,6 +37,16 @@ class OpenAccountHandler:
             self.uow.accounts.add(account)
         return account.id_
 
+
+class UpdateFrontendAfterAccountOpened:
+
+    def __init__(self, frontend: AbstractFrontendInterface):
+        self.frontend = frontend
+
+    def __call__(self, event: events.AccountOpened):
+        self.frontend.handle_account_opened(event.id_)
+
+
 #
 # class CloseAccountHandler:
 #
@@ -258,9 +268,10 @@ COMMAND_HANDLERS = {
 
 EVENT_HANDLERS = {
     events.AccountOpened: [
-    #     AddAccountToOverview,
-    #     UpdateDropdownOptions,
-    #     UpdatePlot
+        UpdateFrontendAfterAccountOpened,
+        #     AddAccountToOverview,
+        #     UpdateDropdownOptions,
+        #     UpdatePlot
     ],
     events.OrderCreated: [
         # UpdateOrderEditor,

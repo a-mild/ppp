@@ -1,5 +1,5 @@
-<div>
-    <v-btn @click="open_account">
+<div id="tab-item_accounts">
+    <v-btn id="open_account" @click="open_account">
         <v-icon>mdi-plus-box</v-icon>
         Account eröffnen
     </v-btn>
@@ -24,12 +24,14 @@
                 </v-tab-item>
             </v-tabs-items>
         </v-row>
+        </v-container>
         <v-row>
             <v-tabs v-model="tab" vertical>
-                <v-tab v-for="(acc, id) in accounts">
+                <v-tab v-for="(acc, id) in accounts" style="text-transform: none !important;">
                     {{ acc.name }}
                 </v-tab>
             </v-tabs>
         </v-row>
     <v-container>
+    {{ output }}
 </div>

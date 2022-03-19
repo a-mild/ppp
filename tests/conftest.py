@@ -1,4 +1,5 @@
 from datetime import date
+from pathlib import Path
 from typing import Union, Any, Callable
 from uuid import UUID
 
@@ -11,9 +12,19 @@ from pension_planner.adapters.repositories import AbstractRepository
 from pension_planner.bootstrap import bootstrap
 from pension_planner.domain import events
 from pension_planner.domain.account import Account
-from pension_planner.domain.bank_statement_service import AbstractBankStatementRepository, PandasBankStatementRepository
 from pension_planner.domain.orders import SingleOrder, StandingOrder, OrderBase
+from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
+
+
+@pytest.fixture
+def test_dir():
+    return Path(__file__).parent
+
+
+@pytest.fixture
+def test_notebook_path(test_dir):
+    return test_dir / "test_app.ipynb"
 
 
 @pytest.fixture
@@ -93,6 +104,12 @@ class FakeUnitOfWork(AbstractUnitOfWork):
         pass
 
 
+class FakeFrontend(AbstractFrontendInterface):
+
+    def handle_account_opened(self, id_: UUID) -> None:
+        pass
+
+
 @pytest.fixture
 def fake_uow():
     fake_uow = FakeUnitOfWork()
@@ -105,7 +122,7 @@ def fake_uow():
 def fake_bus(fake_uow):
     dependencies = {
         AbstractUnitOfWork: fake_uow,
-        AbstractBankStatementRepository: PandasBankStatementRepository(),
+        AbstractFrontendInterface: FakeFrontend()
     }
     return bootstrap(
         start_orm=False,
@@ -114,10 +131,14 @@ def fake_bus(fake_uow):
 
 
 @pytest.fixture
-def account_factory():
+def default_account_name():
+    return "Girokonto #1"
+
+@pytest.fixture
+def account_factory(default_account_name):
     def _make_account():
         return Account(
-            name="Girokonto #1",
+            name=default_account_name,
             interest_rate=0.0,
         )
     return _make_account

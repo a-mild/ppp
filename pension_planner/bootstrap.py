@@ -15,7 +15,6 @@ from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork, SQLAl
 engine = create_engine(config.get_sqlite_uri())
 
 
-
 default_dependencies = {
     AbstractUnitOfWork: SQLAlchemyUnitOfWork(
         session_factory=sessionmaker(bind=engine, future=True, expire_on_commit=False)),
@@ -46,6 +45,3 @@ def inject_dependency(handler_cls, dependency_mapping):
     args = {arg_name: dependency_mapping[parameter.annotation]
             for arg_name, parameter in parameters.items()}
     return handler_cls(**args)
-
-
-bus = bootstrap()
