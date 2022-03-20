@@ -1,31 +1,22 @@
 import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
-
 
 pytestmark = pytest.mark.usefixtures("run_voila")
 
 
-def test_open_account(driver, open_drawer):
-    # The User sees the control panel for opening accounts
-    tab_item_accounts = (WebDriverWait(driver, 30)
-                         .until(EC.presence_of_element_located((By.ID, "tab-item_accounts")))
-                         )
-    # The user clicks on the "open account" button
-    button = (WebDriverWait(driver, 30)
-              .until(EC.element_to_be_clickable((By.ID, "open_account")))
-              )
-    button.click()
+def test_open_account(main_page):
+    # The user opens the sidebar
+    sidebar = main_page.toggle_sidebar()
+    # and the account tab is already active
+    assert "active" in sidebar.accounts_tab.get_attribute("class")
+    tab = sidebar.open_accounts_tab()   # get the subpage
+    # Currently there are no accounts
+    assert len(tab.accounts) == 0
+    # so the user clicks on the "open account" button
+    tab.open_account()
+    # and a tab element along with an editor opens
+    assert len(tab.accounts) == 1
     # he gets to see input fields for the name of the account and its interest rate
-    input_fields: list[WebElement] = tab_item_accounts.find_elements(by=By.CLASS_NAME, value="v-input")
-    assert len(input_fields) == 2
-    assert "Kontoname" in input_fields[0].text
-    assert "Zinsen" in input_fields[1].text
+    controller = tab.accounts[0]
+    assert "Konto" in controller.account_name
+    assert float(controller.interest_rate) == 0.0
 
-    # and the new account is listed at the bottom
-    tabs = tab_item_accounts.find_elements(by=By.CLASS_NAME, value="v-tab")
-
-    assert len(tabs) == 1
-    assert "Konto #1" in tabs[0].text

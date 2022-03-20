@@ -33,6 +33,7 @@ class TabItemAccounts(v.VuetifyTemplate):
         self.accounts = self.accounts | {str(id_): account}
 
     def vue_update_name(self, id_: str):
+        self.output = f"{id_!r}"
         command = commands.UpdateAccountAttribute(
             id_=UUID(id_),
             attribute="name",
