@@ -52,20 +52,29 @@ def test_uow_can_collect_entity_created_events(sa_uow, account_factory, single_o
     assert order_created_event in collected_events
 
 
-def test_uow_can_collect_entity_deleted_events(sa_uow, account_factory, single_order_factory):
+def test_uow_can_collect_entity_deleted_events(sa_uow, account_factory, single_order_factory, standing_order_factory):
     account = account_factory()
     single_order = single_order_factory()
+    standing_order = standing_order_factory()
     with sa_uow:
         account_id = sa_uow.accounts.add(account)
         single_order_id = sa_uow.orders.add(single_order)
+        standing_order_id = sa_uow.orders.add(standing_order)
+    list(sa_uow.collect_new_events())   # empty event lists in the entities
 
     # delete again
     with sa_uow:
         sa_uow.accounts.delete(account_id)
+        sa_uow.orders.delete(single_order_id)
+        sa_uow.orders.delete(standing_order_id)
 
     account_closed_event = events.AccountClosed(account_id)
+    single_order_deleted_event = events.OrderDeleted(single_order_id)
+    standing_order_deleted_event = events.OrderDeleted(standing_order_id)
     collected_events = list(sa_uow.collect_new_events())
     assert account_closed_event in collected_events
+    assert single_order_deleted_event in collected_events
+    assert standing_order_deleted_event in collected_events
 
 
 def test_uow_can_collect_entity_updated_events(sa_uow, account_factory, single_order_factory):

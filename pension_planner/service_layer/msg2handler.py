@@ -14,40 +14,13 @@ from pension_planner.domain.bank_statement_service import AbstractBankStatementR
 from pension_planner.domain.orders import SingleOrder, StandingOrder, ORDER_ATTRIBUTES
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer.handlers.crud import OpenAccountHandler, CloseAccountHandler, \
-    UpdateAccountAttributeHandler
+    UpdateAccountAttributeHandler, PlaceSingleOrderHandler, PlaceStandingOrderHandler
 from pension_planner.service_layer.handlers.frontend import UpdateFrontendAfterAccountOpened, \
-    UpdateFrontendAfterAccountClosed, ToggleDrawerHandler
+    UpdateFrontendAfterAccountClosed, ToggleDrawerHandler, UpdateFrontendAfterOrderCreated
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
 
-#
-# class PlaceSingleOrderHandler:
-#
-#     def __init__(self, uow: AbstractUnitOfWork, bank_statement_repo: AbstractBankStatementRepository):
-#         self.uow = uow
-#         self.bank_statement_repo = bank_statement_repo
-#
-#     def __call__(self, command: commands.CreateSingleOrder) -> UUID:
-#         single_order = SingleOrder(**asdict(command))
-#         with self.uow:
-#             self.uow.orders.add(single_order)
-#         self.bank_statement_repo.add_order(single_order)
-#         return single_order.id_
-#
-#
-# class PlaceStandingOrderHandler:
-#
-#     def __init__(self, uow: AbstractUnitOfWork, bank_statement_repo: AbstractBankStatementRepository):
-#         self.uow = uow
-#         self.bank_statement_repo = bank_statement_repo
-#
-#     def __call__(self, command: commands.CreateStandingOrder) -> UUID:
-#         standing_order = StandingOrder(**asdict(command))
-#         with self.uow:
-#             self.uow.orders.add(standing_order)
-#         self.bank_statement_repo.add_order(standing_order)
-#         return standing_order.id_
-#
+
 #
 # class UpdateOrderAttributeHandler:
 #
@@ -206,10 +179,11 @@ COMMAND_HANDLERS = {
     commands.OpenAccount: OpenAccountHandler,
     commands.CloseAccount: CloseAccountHandler,
     commands.UpdateAccountAttribute: UpdateAccountAttributeHandler,
-    # commands.CreateSingleOrder: PlaceSingleOrderHandler,
-    # commands.CreateStandingOrder: PlaceStandingOrderHandler,
+    commands.CreateSingleOrder: PlaceSingleOrderHandler,
+    commands.CreateStandingOrder: PlaceStandingOrderHandler,
     # commands.UpdateOrderAttribute: UpdateOrderAttributeHandler
 }
+
 
 
 EVENT_HANDLERS = {
@@ -226,6 +200,7 @@ EVENT_HANDLERS = {
 
     ],
     events.OrderCreated: [
+        UpdateFrontendAfterOrderCreated
         # UpdateOrderEditor,
         # UpdatePlot
     ],

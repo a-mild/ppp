@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pension_planner.domain import commands
 from pension_planner.domain.account import Account
+from pension_planner.domain.orders import StandingOrder, SingleOrder
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
 
@@ -29,7 +30,6 @@ class CloseAccountHandler:
             self.uow.accounts.delete(command.id_)
 
 
-
 class UpdateAccountAttributeHandler:
 
     def __init__(self, uow: AbstractUnitOfWork):
@@ -41,3 +41,27 @@ class UpdateAccountAttributeHandler:
                 id_=command.id_,
                 attribute=command.attribute,
                 new_value=command.new_value)
+
+
+class PlaceSingleOrderHandler:
+
+    def __init__(self, uow: AbstractUnitOfWork):
+        self.uow = uow
+
+    def __call__(self, command: commands.CreateSingleOrder) -> UUID:
+        single_order = SingleOrder(**asdict(command))
+        with self.uow:
+            self.uow.orders.add(single_order)
+        return single_order.id_
+
+
+class PlaceStandingOrderHandler:
+
+    def __init__(self, uow: AbstractUnitOfWork):
+        self.uow = uow
+
+    def __call__(self, command: commands.CreateStandingOrder) -> UUID:
+        standing_order = StandingOrder(**asdict(command))
+        with self.uow:
+            self.uow.orders.add(standing_order)
+        return standing_order.id_

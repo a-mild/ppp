@@ -16,7 +16,10 @@ def test_can_create_an_order(main_page):
     assert "active" in sidebar.orders_tab.get_attribute("class")
     # he clicks on the button to place a new order and creates a single order
     tab.place_single_order()
+    # Currently there are no orders
+    assert len(tab.orders) == 0
     # he gets to see input fields for all the parameters
+
 
 
     # order_editor = tab_item_orders.find_element(By.ID, "order_editor")

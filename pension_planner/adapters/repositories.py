@@ -101,6 +101,7 @@ class SQLAlchemyOrderRepository(AbstractRepository):
     def _delete(self, id_: UUID) -> None:
         order = self._get(id_)
         self.session.delete(order)
+        return order
 
     def _update(self, id_: UUID, attribute: str, new_value: Any) -> OrderBase:
         order: OrderBase = self._get(id_)

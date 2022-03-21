@@ -23,7 +23,7 @@ class OrderBase(ABC):
     from_acc_id: UUID | None
     target_acc_id: UUID
     id_: UUID = field(default_factory=uuid4, init=False)
-    events: list[Event] = field(default_factory=list, init=False, compare=False)
+    events: list[Event] = field(default_factory=list, init=False, compare=False, repr=False)
 
     def __post_init__(self):
         self._initialized = True

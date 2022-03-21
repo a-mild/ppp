@@ -31,6 +31,11 @@ class OrderCreated(Event):
 
 
 @dataclass(frozen=True)
+class OrderDeleted(Event):
+    id_: UUID
+
+
+@dataclass(frozen=True)
 class OrderAttributeUpdated(Event):
     id_: UUID
     attribute: str

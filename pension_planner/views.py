@@ -31,4 +31,5 @@ def fetch_order(id_: UUID, uow: SQLAlchemyUnitOfWork) -> dict[str, Any]:
                 .filter_by(id_=id_)
                 .options())
         order = uow.session.execute(stmt).scalars().first()
-        return asdict(order)
+        result = asdict(order) | {"type": order.type}
+        return result

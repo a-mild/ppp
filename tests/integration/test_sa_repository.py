@@ -6,6 +6,7 @@ from pension_planner.adapters.repositories import SQLAlchemyAccountRepository, S
 from pension_planner.domain.events import AccountOpened, AccountAttributeUpdated
 from pension_planner.domain.orders import SingleOrder
 
+
 pytestmark = pytest.mark.usefixtures("mappers")
 
 
@@ -95,9 +96,11 @@ def test_delete_orders(sa_order_repo, single_order_factory, standing_order_facto
     single_order_id = sa_order_repo.add(single_order)
     standing_order_id = sa_order_repo.add(standing_order)
     sa_order_repo.session.commit()
+
     sa_order_repo.delete(single_order_id)
     sa_order_repo.delete(standing_order_id)
     sa_order_repo.session.commit()
+
     assert sa_order_repo.get(single_order_id) is None
     assert sa_order_repo.get(standing_order_id) is None
 

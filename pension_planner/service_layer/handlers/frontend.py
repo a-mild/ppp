@@ -29,3 +29,13 @@ class UpdateFrontendAfterAccountClosed:
 
     def __call__(self, event: events.AccountOpened):
         self.frontend.handle_account_closed(event.id_)
+
+
+class UpdateFrontendAfterOrderCreated:
+
+    def __init__(self, frontend: AbstractFrontendInterface):
+        self.frontend = frontend
+
+    def __call__(self, event: events.AccountOpened):
+        self.frontend.handle_order_created(event.id_)
+

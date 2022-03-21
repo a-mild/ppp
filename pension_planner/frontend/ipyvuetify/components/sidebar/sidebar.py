@@ -12,8 +12,8 @@ class SideBar(v.VuetifyTemplate):
 
     drawer_open = traitlets.Bool(default_value=False).tag(sync=True)
 
-    tab_item_accounts = traitlets.Any().tag(sync=True, **w.widget_serialization)
-    tab_item_orders = traitlets.Any().tag(sync=True, **w.widget_serialization)
+    tab_item_accounts: TabItemAccounts = traitlets.Any().tag(sync=True, **w.widget_serialization)
+    tab_item_orders: TabItemOrders = traitlets.Any().tag(sync=True, **w.widget_serialization)
 
     def __init__(self, bus: MessageBus):
         self.bus = bus

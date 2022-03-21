@@ -24,6 +24,10 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
         cls.app.sidebar.tab_item_accounts.delete_account(id_)
 
     @classmethod
+    def handle_order_created(cls, id_: UUID) -> None:
+        cls.app.sidebar.tab_item_orders.order_editor.add_order(id_)
+
+    @classmethod
     def setup(cls, bus: MessageBus) -> None:
         cls.app = App(bus)
 

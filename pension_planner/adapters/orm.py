@@ -157,3 +157,9 @@ def receive_load(entity, _):
 @event.listens_for(Account, 'before_delete')
 def receive_before_delete(mapper, connection, target: Account):
     target.events.append(events.AccountClosed(target.id_))
+
+
+@event.listens_for(SingleOrder, 'before_delete')
+@event.listens_for(StandingOrder, 'before_delete')
+def receive_before_delete(mapper, connection, target: OrderBase):
+    target.events.append(events.OrderDeleted(target.id_))
