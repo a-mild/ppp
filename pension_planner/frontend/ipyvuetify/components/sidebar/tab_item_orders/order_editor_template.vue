@@ -1,24 +1,8 @@
 <v-container>
-    <v-row>
-        <jupyter-widget :widget="name" id="name"/>
-    </v-row>
-    <v-row>
-        <jupyter-widget :widget="from_acc_id" id="from_acc_id"/>
-    </v-row>
-    <v-row>
-        <jupyter-widget :widget="target_acc_id" id="target_acc_id"/>
-    </v-row>
-    <v-row>
-        <jupyter-widget :widget="date" id="date" />
-    </v-row>
-    <v-row>
-        <jupyter-widget :widget="start_date" id="start_date" />
-    </v-row>
-    <v-row>
-        <jupyter-widget :widget="end_date" id="end_date"/>
-    </v-row>
-    <v-row>
-        <jupyter-widget :widget="amount" id="amount"/>
-    </v-row>
+    <v-tabs-items v-model="tab" >
+        <v-tab-item v-for="(order, id_) in orders" >
+            <jupyter-widget :widget="order" />
+        </v-tab-item>
+    </v-tabs-items>
     {{output}}
 </v-container>
