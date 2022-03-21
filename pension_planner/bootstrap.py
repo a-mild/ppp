@@ -5,10 +5,9 @@ from sqlalchemy.orm import sessionmaker
 
 from pension_planner import config
 from pension_planner.adapters import orm
-from pension_planner.domain.bank_statement_service import PandasBankStatementRepository, AbstractBankStatementRepository
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.frontend.ipyvuetify.main import IPyVuetifyFrontend
-from pension_planner.service_layer import handlers
+from pension_planner.service_layer import msg2handler
 from pension_planner.service_layer.messagebus import MessageBus
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork, SQLAlchemyUnitOfWork
 
@@ -30,9 +29,9 @@ def bootstrap(
         orm.metadata.create_all(engine)
         orm.start_mappers()
     command_handlers = {command: inject_dependency(handler_cls, dependencies)
-                        for command, handler_cls in handlers.COMMAND_HANDLERS.items()}
+                        for command, handler_cls in msg2handler.COMMAND_HANDLERS.items()}
     event_handlers = {event: [inject_dependency(handler_cls, dependencies) for handler_cls in handler_classes]
-                      for event, handler_classes in handlers.EVENT_HANDLERS.items()}
+                      for event, handler_classes in msg2handler.EVENT_HANDLERS.items()}
     return MessageBus(
         uow=dependencies[AbstractUnitOfWork],
         command_handlers=command_handlers,

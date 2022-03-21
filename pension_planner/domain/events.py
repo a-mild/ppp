@@ -13,6 +13,11 @@ class AccountOpened(Event):
 
 
 @dataclass(frozen=True)
+class AccountClosed(Event):
+    id_: UUID
+
+
+@dataclass(frozen=True)
 class AccountAttributeUpdated(Event):
     id_: UUID
     attribute: str

@@ -17,8 +17,11 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
     @classmethod
     def handle_account_opened(cls, id_: UUID) -> None:
         assert cls.app is not None
-        logging.debug("Called in ipyvuetify")
         cls.app.sidebar.tab_item_accounts.add_account(id_)
+
+    @classmethod
+    def handle_account_closed(cls, id_: UUID) -> None:
+        cls.app.sidebar.tab_item_accounts.delete_account(id_)
 
     @classmethod
     def setup(cls, bus: MessageBus) -> None:

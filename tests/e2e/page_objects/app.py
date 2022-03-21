@@ -1,6 +1,8 @@
+import time
 from collections import UserDict, UserList
 from typing import Union, TypeVar
 
+from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -8,6 +10,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 ELEMENT_WAIT_TIME = 10
+
+def clear(input_element: WebElement):
+    input_element.send_keys(Keys.CONTROL, "a")
+    input_element.send_keys(Keys.DELETE)
 
 
 class BasePage:
@@ -47,6 +53,13 @@ class TextInputField:
     def __init__(self, locator):
         self.locator = locator
 
+    def __set__(self, instance, value):
+        parent: WebElement = instance.parent
+        input_element = parent.find_element(*self.locator)
+        clear(input_element)
+        input_element.send_keys(value)
+        input_element.send_keys(Keys.ENTER)
+
     def __get__(self, obj, owner):
         parent: WebElement = obj.parent
         input_element = parent.find_element(*self.locator)
@@ -78,6 +91,9 @@ class AccountsList:
 
     def __len__(self):
         return len(self.tabs)
+
+    def delete(self, item: int) -> None:
+        self.tabs[item].find_element(By.TAG_NAME, "button").click()
 
 
 class AccountsTab(BasePage):

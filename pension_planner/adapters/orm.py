@@ -3,7 +3,7 @@ With inspiration from https://stackoverflow.com/questions/66921914/using-polymor
 
 
 """
-
+import logging
 import uuid
 from uuid import UUID
 
@@ -11,6 +11,7 @@ from sqlalchemy import Table, Column, TypeDecorator, CHAR, Unicode, Float, Forei
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import registry, relationship, backref
 
+from pension_planner.domain import events
 from pension_planner.domain.account import Account
 from pension_planner.domain.orders import OrderBase, SingleOrder, StandingOrder
 
@@ -151,3 +152,8 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 def receive_load(entity, _):
     entity.events = []
     entity._initialized = True
+
+
+@event.listens_for(Account, 'before_delete')
+def receive_before_delete(mapper, connection, target: Account):
+    target.events.append(events.AccountClosed(target.id_))

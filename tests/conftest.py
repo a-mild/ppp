@@ -109,6 +109,9 @@ class FakeFrontend(AbstractFrontendInterface):
     def handle_account_opened(self, id_: UUID) -> None:
         pass
 
+    def handle_account_closed(self, id_: UUID) -> None:
+        pass
+
 
 @pytest.fixture
 def fake_uow():

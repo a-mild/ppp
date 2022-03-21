@@ -13,6 +13,14 @@ def test_open_bank_account(fake_bus):
     assert id_ is not None
 
 
+def test_close_account(fake_bus):
+    # setup account
+    command = OpenAccount()
+    [id_] = fake_bus.handle(command)
+    fake_bus.handle(commands.CloseAccount(id_=id_))
+    assert fake_bus.uow.accounts.get(id_) is None
+
+
 def test_update_account_attribute(fake_bus):
     # setup account
     command = OpenAccount()
@@ -27,13 +35,6 @@ def test_update_account_attribute(fake_bus):
     account = fake_bus.uow.accounts.get(id_)
     assert account.name == "Bankkonto #42"
 
-
-def test_close_account(fake_bus):
-    # setup account
-    command = OpenAccount()
-    [id_] = fake_bus.handle(command)
-    fake_bus.handle(commands.CloseAccount(id_=id_))
-    assert fake_bus.uow.accounts.get(id_) is None
 
 
 def test_place_single_order(fake_bus):

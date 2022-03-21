@@ -73,10 +73,9 @@ class SQLAlchemyAccountRepository(AbstractRepository):
         return self.session.execute(stmt).scalars().first()
 
     def _delete(self, id_: UUID) -> None:
-        stmt = (delete(Account)
-                .where(Account.id_ == id_)
-                .execution_options(synchronize_session="fetch"))
-        self.session.execute(stmt)
+        account = self._get(id_)
+        self.session.delete(account)
+        return account
 
     def _update(self, id_: UUID, attribute: str, new_value: Any) -> Account:
         account = self._get(id_)

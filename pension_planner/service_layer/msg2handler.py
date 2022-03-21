@@ -13,68 +13,13 @@ from pension_planner.domain.account import Account
 from pension_planner.domain.bank_statement_service import AbstractBankStatementRepository
 from pension_planner.domain.orders import SingleOrder, StandingOrder, ORDER_ATTRIBUTES
 from pension_planner.frontend.interface import AbstractFrontendInterface
+from pension_planner.service_layer.handlers.crud import OpenAccountHandler, CloseAccountHandler, \
+    UpdateAccountAttributeHandler
+from pension_planner.service_layer.handlers.frontend import UpdateFrontendAfterAccountOpened, \
+    UpdateFrontendAfterAccountClosed, ToggleDrawerHandler
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
 
-class ToggleDrawerHandler:
-
-    def __init__(self, frontend: AbstractFrontendInterface):
-        self.frontend = frontend
-
-    def __call__(self, command: commands.ToggleDrawer):
-        self.frontend.handle_toggle_drawer()
-
-
-class OpenAccountHandler:
-
-    def __init__(self, uow: AbstractUnitOfWork):
-        self.uow = uow
-
-    def __call__(self, command: commands.OpenAccount) -> UUID:
-        kwargs = {k: v for k, v in asdict(command).items() if v is not None}
-        account = Account(**kwargs)
-        with self.uow:
-            self.uow.accounts.add(account)
-        return account.id_
-
-
-class UpdateFrontendAfterAccountOpened:
-
-    def __init__(self, frontend: AbstractFrontendInterface):
-        self.frontend = frontend
-
-    def __call__(self, event: events.AccountOpened):
-        self.frontend.handle_account_opened(event.id_)
-
-
-#
-# class CloseAccountHandler:
-#
-#     def __init__(self, uow: AbstractUnitOfWork, bank_statement_repo: AbstractBankStatementRepository):
-#         self.uow = uow
-#         self.bank_statement_repo = bank_statement_repo
-#
-#     def __call__(self, command: commands.CloseAccount):
-#         with self.uow:
-#             self.uow.accounts.delete(command.id_)
-#         self.bank_statement_repo.delete_account(command.id_)
-#
-#
-# class UpdateAccountAttributeHandler:
-#
-#     def __init__(self, uow: AbstractUnitOfWork, bank_statement_repo: AbstractBankStatementRepository):
-#         self.uow = uow
-#         self.bank_statement_repo = bank_statement_repo
-#
-#     def __call__(self, command: commands.UpdateAccountAttribute):
-#         with self.uow:
-#             self.uow.accounts.update(
-#                 id_=command.id_,
-#                 attribute=command.attribute,
-#                 new_value=command.new_value)
-#         if command.attribute == "interest_rate":
-#             self.bank_statement_repo.update_interest_rate(command.id_, command.new_value)
-#
 #
 # class PlaceSingleOrderHandler:
 #
@@ -259,12 +204,13 @@ class UpdateFrontendAfterAccountOpened:
 COMMAND_HANDLERS = {
     commands.ToggleDrawer: ToggleDrawerHandler,
     commands.OpenAccount: OpenAccountHandler,
-    # commands.CloseAccount: CloseAccountHandler,
-    # commands.UpdateAccountAttribute: UpdateAccountAttributeHandler,
+    commands.CloseAccount: CloseAccountHandler,
+    commands.UpdateAccountAttribute: UpdateAccountAttributeHandler,
     # commands.CreateSingleOrder: PlaceSingleOrderHandler,
     # commands.CreateStandingOrder: PlaceStandingOrderHandler,
     # commands.UpdateOrderAttribute: UpdateOrderAttributeHandler
 }
+
 
 EVENT_HANDLERS = {
     events.AccountOpened: [
@@ -272,6 +218,12 @@ EVENT_HANDLERS = {
         #     AddAccountToOverview,
         #     UpdateDropdownOptions,
         #     UpdatePlot
+    ],
+    events.AccountClosed: [
+        UpdateFrontendAfterAccountClosed,
+    ],
+    events.AccountAttributeUpdated: [
+
     ],
     events.OrderCreated: [
         # UpdateOrderEditor,

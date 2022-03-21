@@ -52,6 +52,22 @@ def test_uow_can_collect_entity_created_events(sa_uow, account_factory, single_o
     assert order_created_event in collected_events
 
 
+def test_uow_can_collect_entity_deleted_events(sa_uow, account_factory, single_order_factory):
+    account = account_factory()
+    single_order = single_order_factory()
+    with sa_uow:
+        account_id = sa_uow.accounts.add(account)
+        single_order_id = sa_uow.orders.add(single_order)
+
+    # delete again
+    with sa_uow:
+        sa_uow.accounts.delete(account_id)
+
+    account_closed_event = events.AccountClosed(account_id)
+    collected_events = list(sa_uow.collect_new_events())
+    assert account_closed_event in collected_events
+
+
 def test_uow_can_collect_entity_updated_events(sa_uow, account_factory, single_order_factory):
     account = account_factory()
     old_account_name = account.name
@@ -60,7 +76,7 @@ def test_uow_can_collect_entity_updated_events(sa_uow, account_factory, single_o
     with sa_uow:
         account_id = sa_uow.accounts.add(account)
         single_order_id = sa_uow.orders.add(single_order)
-    list(sa_uow.collect_new_events())
+    list(sa_uow.collect_new_events())   # empty the event lists
     with sa_uow:
         sa_uow.accounts.update(account_id, "name", "Blackrock Konto #100")
         sa_uow.orders.update(single_order_id, "name", "Riesiger Auftrag")
