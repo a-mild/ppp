@@ -2,13 +2,13 @@
     <v-text-field
         label="Name"
         v-model="name"
-        @input="update_name"
+        @change="update_name"
         id="name"
         outlined
     >
     </v-text-field>
     <v-select
-        v-model="from_acc_id_selected"
+        v-model="from_acc_id"
         label="Von Konto"
         :items="from_acc_id_options"
         outlined
@@ -16,7 +16,7 @@
     >
     </v-select>
     <v-select
-        v-model="target_acc_id_selected"
+        v-model="target_acc_id"
         label="Auf Konto"
         :items="target_acc_id_options"
         outlined
@@ -87,7 +87,7 @@
         v-model="amount"
         prepend-icon="mdi-cash"
         outlined
-        @input="update_amount"
+        @change="update_amount"
     >
     </v-text-field>
     {{output}}

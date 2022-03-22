@@ -18,10 +18,10 @@ class SingleOrderEditor(v.VuetifyTemplate):
 
     name = traitlets.Unicode().tag(sync=True)
 
-    from_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
     from_acc_id = traitlets.Unicode().tag(sync=True)
-    target_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
+    from_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
     target_acc_id = traitlets.Unicode().tag(sync=True)
+    target_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
 
     datepicker_menu = traitlets.Bool(False).tag(sync=True)
     date = traitlets.Unicode().tag(sync=True)
@@ -89,43 +89,83 @@ class StandingOrderEditor(v.VuetifyTemplate):
 
     name = traitlets.Unicode().tag(sync=True)
 
-    from_acc_id_options = traitlets.List([{"text": letter, "value": number} for letter, number in zip("abc", range(3))]).tag(sync=True)
-    from_acc_id_selected = traitlets.Any().tag(sync=True)
-
-    target_acc_id_options = traitlets.List([{"text": letter, "value": number} for letter, number in zip("abc", range(3))]).tag(sync=True)
-    target_acc_id_selected = traitlets.Any().tag(sync=True)
+    from_acc_id = traitlets.Unicode().tag(sync=True)
+    from_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
+    target_acc_id = traitlets.Unicode().tag(sync=True)
+    target_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
 
     start_date_menu = traitlets.Bool(False).tag(sync=True)
-    start_date = traitlets.Unicode(datetime.today().strftime("%Y-%m")).tag(sync=True)
+    start_date = traitlets.Unicode().tag(sync=True)
 
     end_date_menu = traitlets.Bool(False).tag(sync=True)
-    end_date = traitlets.Unicode(datetime.today().strftime("%Y-%m")).tag(sync=True)
+    end_date = traitlets.Unicode().tag(sync=True)
 
     amount = traitlets.Float().tag(sync=True)
 
     output = traitlets.Unicode().tag(sync=True)
 
-    def __init__(self, bus: MessageBus, *args, **kwargs):
+    def __init__(self, bus: MessageBus, id_: UUID, *args, **kwargs):
         self.bus = bus
+        self.id_ = id_
         super().__init__(*args, **kwargs)
 
     def vue_update_name(self, data=None):
-        self.output = f"{data!r}"
+        command = commands.UpdateOrderAttribute(
+            id_=self.id_,
+            attribute="name",
+            new_value=self.name,
+        )
+        self.bus.handle(command)
+        self.output = f"{command!r}"
 
-    def vue_update_from_acc_id(self, data=None):
-        self.output = f"{data!r}"
+    def vue_update_from_acc_id(self, from_acc_id: str):
+        new_value = None if from_acc_id == "None" else UUID(from_acc_id)
+        command = commands.UpdateOrderAttribute(
+            id_=self.id_,
+            attribute="from_acc_id",
+            new_value=new_value,
+        )
+        self.bus.handle(command)
+        self.output = f"{command!r}"
 
-    def vue_update_target_acc_id(self, data=None):
-        self.output = f"{data!r}"
+    def vue_update_target_acc_id(self, target_acc_id: str):
+        new_value = None if target_acc_id == "None" else UUID(target_acc_id)
+        command = commands.UpdateOrderAttribute(
+            id_=self.id_,
+            attribute="target_acc_id",
+            new_value=new_value,
+        )
+        self.bus.handle(command)
+        self.output = f"{command!r}"
 
-    def vue_update_start_date(self, data=None):
-        self.output = f"{data!r}"
+    def vue_update_start_date(self, date_string: str):
+        date = datetime.strptime(date_string, "%Y-%m")
+        command = commands.UpdateOrderAttribute(
+            id_=self.id_,
+            attribute="start_date",
+            new_value=date,
+        )
+        self.bus.handle(command)
+        self.output = f"{command!r}"
 
-    def vue_update_end_date(self, data=None):
-        self.output = f"{data!r}"
+    def vue_update_end_date(self, date_string: str):
+        date = datetime.strptime(date_string, "%Y-%m")
+        command = commands.UpdateOrderAttribute(
+            id_=self.id_,
+            attribute="end_date",
+            new_value=date,
+        )
+        self.bus.handle(command)
+        self.output = f"{command!r}"
 
-    def vue_update_amount(self, data=None):
-        self.output = f"{data!r}"
+    def vue_update_amount(self, amount=None):
+        command = commands.UpdateOrderAttribute(
+            id_=self.id_,
+            attribute="amount",
+            new_value=float(amount),
+        )
+        self.bus.handle(command)
+        self.output = f"{command!r}"
 
 
 class OrderEditor(v.VuetifyTemplate):
@@ -146,7 +186,7 @@ class OrderEditor(v.VuetifyTemplate):
         if order["type"] == "single_order":
             widget = SingleOrderEditor(
                 bus=self.bus,
-                id_=str(order["id_"]),
+                id_=order["id_"],
                 name=order["name"],
                 from_acc_id=str(order["from_acc_id"]),
                 target_acc_id=str(order["target_acc_id"]),
@@ -156,6 +196,7 @@ class OrderEditor(v.VuetifyTemplate):
         elif order["type"] == "standing_order":
             widget = StandingOrderEditor(
                 bus=self.bus,
+                id_=order["id_"],
                 name=order["name"],
                 from_acc_id=str(order["from_acc_id"]),
                 target_acc_id=str(order["target_acc_id"]),
