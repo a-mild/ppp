@@ -23,6 +23,9 @@ class AbstractRepository(ABC):
         self.seen.add(entity)
         return id_
 
+    def list(self) -> list[Entity]:
+        return self._list()
+
     def get(self, id_: UUID) -> Entity:
         entity = self._get(id_)
         if entity:
@@ -45,6 +48,10 @@ class AbstractRepository(ABC):
 
     @abstractmethod
     def _get(self, id_: UUID) -> Entity:
+        ...
+
+    @abstractmethod
+    def _list(self):
         ...
 
     @abstractmethod
@@ -72,6 +79,10 @@ class SQLAlchemyAccountRepository(AbstractRepository):
                 .filter_by(id_=id_))
         return self.session.execute(stmt).scalars().first()
 
+    def _list(self):
+        stmt = select(Account)
+        return self.session.scalars(stmt).all()
+
     def _delete(self, id_: UUID) -> None:
         account = self._get(id_)
         self.session.delete(account)
@@ -85,6 +96,7 @@ class SQLAlchemyAccountRepository(AbstractRepository):
 
 class SQLAlchemyOrderRepository(AbstractRepository):
 
+
     def __init__(self, session: Session):
         super().__init__()
         self.session = session
@@ -97,6 +109,10 @@ class SQLAlchemyOrderRepository(AbstractRepository):
         stmt = (select(OrderBase)
                 .filter_by(id_=id_))
         return self.session.execute(stmt).scalars().first()
+
+    def _list(self):
+        stmt = select(OrderBase)
+        return self.session.scalars(stmt).all()
 
     def _delete(self, id_: UUID) -> None:
         order = self._get(id_)

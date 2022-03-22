@@ -1,6 +1,5 @@
 import logging
-from abc import ABC
-from collections.abc import Mapping
+from abc import ABC, abstractmethod
 from typing import Type
 from uuid import uuid4, UUID
 from datetime import date, datetime
@@ -21,7 +20,7 @@ ORDER_TYPES: dict[str, Type["OrderBase"]] = {}
 class OrderBase(ABC):
     name: str
     from_acc_id: UUID | None
-    target_acc_id: UUID
+    target_acc_id: UUID | None
     id_: UUID = field(default_factory=uuid4, init=False)
     events: list[Event] = field(default_factory=list, init=False, compare=False, repr=False)
 
@@ -50,6 +49,10 @@ class OrderBase(ABC):
     def __hash__(self):
         return hash(self.id_)
 
+    @abstractmethod
+    def get_timeseries(self) -> dict[date, float]:
+        ...
+
 
 # eq=False lets the subclasses inherit the __hash__ function of the superclass
 
@@ -59,6 +62,9 @@ class SingleOrder(OrderBase):
     amount: float
     _initialized: bool = field(default=False, repr=False)
 
+    def get_timeseries(self) -> dict[datetime, float]:
+        return {self.date: self.amount}
+
 
 @dataclass(eq=False)
 class StandingOrder(OrderBase):
@@ -66,6 +72,13 @@ class StandingOrder(OrderBase):
     end_date: date
     amount: float
     _initialized: bool = field(default=False, repr=False)
+
+    def get_timeseries(self) -> dict[date, float]:
+        return {ts: i * self.amount
+                for i, ts in enumerate(
+                rrule(MONTHLY, dtstart=self.start_date, until=self.end_date),
+                start=1)
+                }
 
 
 def order_factory(order_type: str, **order_kwargs) -> OrderBase:

@@ -38,8 +38,6 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
 
     @classmethod
     def update_plotting_frontend(cls, x: list[float] = None, y: list[float] = None) -> None:
-        x = list(range(10))
-        y = [random.randint(0, 10) for _ in range(10)]
         cls.plotting_frontend.update_with(x, y)
 
     @classmethod

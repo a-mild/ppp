@@ -19,6 +19,19 @@ def test_sa_repo_can_add_account(sa_account_repo, account_factory):
     assert revived.events == [AccountOpened(id_=acc_id)]
 
 
+def test_sa_repo_can_list_accounts(sa_account_repo, account_factory):
+    acc1 = account_factory()
+    acc2 = account_factory()
+    sa_account_repo.add(acc1)
+    sa_account_repo.add(acc2)
+    sa_account_repo.session.commit()
+
+    accounts = sa_account_repo.list()
+    assert len(accounts) == 2
+    assert acc1 in accounts
+    assert acc2 in accounts
+
+
 def test_sa_repo_returns_none_for_nonexistent_account(sa_account_repo, account_factory):
     acc = account_factory()
     sa_account_repo.add(acc)
@@ -174,8 +187,10 @@ def test_assets_and_liabilities_are_updated_after_order_deletion(
     order_1_id = sa_order_repo.add(order_1)
     order_2_id = sa_order_repo.add(order_2)
     sa_order_repo.session.commit()
+
     sa_order_repo.delete(order_1_id)
     sa_order_repo.session.commit()
+
     account_revived = sa_account_repo.get(account_id)
     assert account_revived.liabilities == []
     assert account_revived.assets == [order_2]

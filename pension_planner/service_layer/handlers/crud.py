@@ -13,8 +13,12 @@ class OpenAccountHandler:
         self.uow = uow
 
     def __call__(self, command: commands.OpenAccount) -> UUID:
-        kwargs = {k: v for k, v in asdict(command).items() if v is not None}
-        account = Account(**kwargs)
+        account = Account(
+            name=command.name,
+            interest_rate=command.interest_rate,
+            assets=command.assets,
+            liabilities=command.liabilities,
+        )
         with self.uow:
             self.uow.accounts.add(account)
         return account.id_

@@ -10,7 +10,6 @@ import plotly.express as px
 from pension_planner import views
 from pension_planner.domain import commands, events
 from pension_planner.domain.account import Account
-from pension_planner.domain.bank_statement_service import AbstractBankStatementRepository
 from pension_planner.domain.orders import SingleOrder, StandingOrder, ORDER_ATTRIBUTES
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer.handlers.crud import OpenAccountHandler, CloseAccountHandler, \

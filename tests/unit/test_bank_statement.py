@@ -1,93 +1,137 @@
 from datetime import date
 from uuid import uuid4
 
+import pandas as pd
 import pytest
 
-from pension_planner.domain.bank_statement_service import PandasBankStatementRepository
+from pension_planner.domain.bank_statement_service import produce_bankstatement, create_series, concat_series, merge
 from pension_planner.domain.orders import SingleOrder, StandingOrder
 
 
-@pytest.fixture
-def bs_repo():
-    repo = PandasBankStatementRepository()
-    yield repo
-    repo.reset()
-
-
-def test_can_add_account(bs_repo, base_account):
-    bs_repo.add_account(base_account)
-    assert base_account.id_ in bs_repo.accounts
-
-
-def test_can_delete_account(bs_repo, base_account):
-    bs_repo.add_account(base_account)
-    assert base_account.id_ in bs_repo.accounts
-    bs_repo.delete_account(base_account.id_)
-    assert base_account.id_ not in bs_repo.accounts
-
-
-def test_can_change_interest_rate(bs_repo, base_account):
-    bs_repo.add_account(base_account)
-    bs_repo.update_interest_rate(base_account.id_, 0.10)
-    assert bs_repo.accounts[base_account.id_].interest_rate == 0.10
-
-
-def test_can_add_orders(bs_repo, base_account, single_order, standing_order):
-    single = SingleOrder(
-        name="1",
-        from_acc_id=base_account.id_,
-        target_acc_id=None,
-        date=date(2020, 1, 1),
-        amount=100.0
+def test_create_series(single_order_factory, standing_order_factory):
+    single_order = single_order_factory(
+        date_=date(2019, 1, 1),
+        amount=1000
     )
-    standing = StandingOrder(
-        name="1",
-        from_acc_id=base_account.id_,
-        target_acc_id=None,
+    standing_order = standing_order_factory(
         start_date=date(2020, 1, 1),
         end_date=date(2020, 12, 1),
-        amount=100.0
+        amount=100
     )
-    bs_repo.add_account(base_account)
-    bs_repo.add_order(single)
-    assert single.id_ in bs_repo.accounts[base_account.id_].df.columns
-    assert bs_repo.accounts[base_account.id_].df[single.id_].tolist() == [-single.amount]
-    bs_repo.add_order(standing)
-    assert standing.id_ in bs_repo.accounts[base_account.id_].df.columns
-    expected = [-standing.amount*i for i in range(1, 13)]
-    assert bs_repo.accounts[base_account.id_].df[standing.id_].tolist() == expected
+    single_order_series = create_series(single_order)
+    standing_order_series = create_series(standing_order)
+    assert single_order_series.tolist() == [1000]
+    assert standing_order_series.tolist() == [i * 100 for i in range(1, 13)]
 
 
-def test_can_delete_order(bs_repo, base_account, single_order):
-    bs_repo.add_account(base_account)
-    bs_repo.add_order(single_order)
-    bs_repo.delete_order(single_order.id_)
-    assert single_order.id_ not in bs_repo.accounts[base_account.id_].df.columns
+def test_concat_series_with_empty_df(single_order_factory):
+    single_order = single_order_factory(
+        date_=date(2019, 1, 1),
+        amount=1000
+    )
+    single_order_series = create_series(single_order)
+    empty = pd.DataFrame()
+    merged = concat_series(empty, single_order_series)
+    assert len(merged) == 1
+    assert merged.index.freq == "MS"
 
 
-def test_can_update_orders(bs_repo, base_account, single_order, standing_order):
-    bs_repo.add_account(base_account)
-    bs_repo.add_order(single_order)
-    bs_repo.add_order(standing_order)
+def test_concat_two_series(single_order_factory, standing_order_factory):
+    single_order = single_order_factory(
+        date_=date(2019, 1, 1),
+        amount=1000
+    )
+    standing_order = standing_order_factory(
+        start_date=date(2020, 1, 1),
+        end_date=date(2020, 12, 1),
+        amount=100
+    )
+    single_order_series = create_series(single_order)
+    standing_order_series = create_series(standing_order)
 
-    # turn account to none
-    single_order.from_acc_id = None
-    bs_repo.update_order(single_order)
-    assert single_order.id_ not in bs_repo.accounts[base_account.id_].df.columns
-    # move to asset
-    single_order.target_acc_id = base_account.id_
-    bs_repo.update_order(single_order)
-    assert single_order.id_ in bs_repo.accounts[base_account.id_].df.columns
-    # change value
-    single_order.amount = 2*single_order.amount
-    old_series = bs_repo.accounts[base_account.id_].df[single_order.id_]
-    bs_repo.update_order(single_order)
-    assert (bs_repo.accounts[base_account.id_].df[single_order.id_] == 2*old_series).all() is True
+    merged = concat_series(single_order_series, standing_order_series)
+    assert len(merged) == 24
 
 
-def test_get_total(bs_repo, base_account, single_order, standing_order):
-    bs_repo.add_account(base_account)
-    bs_repo.add_order(single_order)
-    bs_repo.add_order(standing_order)
-    assert bs_repo.get_total().to_list()[-1] == 0
+def test_merge_one_order(single_order_factory):
+    single_order = single_order_factory(
+        date_=date(2019, 1, 1),
+        amount=1000
+    )
+    merged = merge(map(create_series, [single_order]))
+    assert len(merged) == 1
 
+
+def test_merge(single_order_factory, standing_order_factory):
+    single_order = single_order_factory(
+        date_=date(2019, 1, 1),
+        amount=1000
+    )
+    standing_order_1 = standing_order_factory(
+        start_date=date(2020, 1, 1),
+        end_date=date(2020, 12, 1),
+        amount=100
+    )
+    standing_order_2 = standing_order_factory(
+        start_date=date(2021, 1, 1),
+        end_date=date(2021, 12, 1),
+        amount=200
+    )
+    single_order_series = create_series(single_order)
+    standing_order_1_series = create_series(standing_order_1)
+    standing_order_2_series = create_series(standing_order_2)
+    series_list = [single_order_series, standing_order_1_series, standing_order_2_series]
+    merged = merge(series_list)
+    assert len(merged) == 36
+
+
+def test_bankstatement(account_factory, single_order_factory, standing_order_factory):
+    single_order = single_order_factory(
+        date_=date(2021, 12, 1),
+        amount=2400
+    )
+    standing_order_1 = standing_order_factory(
+        start_date=date(2020, 1, 1),
+        end_date=date(2020, 12, 1),
+        amount=100
+    )
+    standing_order_2 = standing_order_factory(
+        start_date=date(2021, 1, 1),
+        end_date=date(2021, 12, 1),
+        amount=100
+    )
+    account = account_factory(
+        interest_rate=0.0,
+        assets=[standing_order_1, standing_order_2],
+        liabilities=[single_order],
+    )
+
+    bank_statement = produce_bankstatement(account)
+    assert len(bank_statement) == 25
+    assert bank_statement.loc[max(bank_statement.index), "total"] == 0
+
+
+def test_bankstatement_with_interest_rate(
+        account_factory, single_order_factory, standing_order_factory):
+    single_order = single_order_factory(
+        date_=date(2021, 12, 1),
+        amount=2400
+    )
+    standing_order_1 = standing_order_factory(
+        start_date=date(2020, 1, 1),
+        end_date=date(2020, 12, 1),
+        amount=100
+    )
+    standing_order_2 = standing_order_factory(
+        start_date=date(2021, 1, 1),
+        end_date=date(2021, 12, 1),
+        amount=100
+    )
+    account = account_factory(
+        interest_rate=0.1,
+        assets=[standing_order_1, standing_order_2],
+        liabilities=[single_order],
+    )
+
+    bank_statement = produce_bankstatement(account)
+    assert bank_statement.loc[max(bank_statement.index), "total"] > 0

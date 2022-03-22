@@ -60,6 +60,7 @@ Entity = Union[Account, OrderBase]
 
 
 class FakeRepository(AbstractRepository):
+
     data: dict[UUID, Entity] = {}
 
     def __init__(self):
@@ -72,6 +73,9 @@ class FakeRepository(AbstractRepository):
     def _get(self, id_: UUID) -> Entity:
         return self.data.get(id_, None)
 
+    def _list(self):
+        return list(self.data.values())
+
     def _delete(self, id_: UUID) -> Entity | None:
         return self.data.pop(id_, None)
 
@@ -80,9 +84,9 @@ class FakeRepository(AbstractRepository):
         if not entity:
             return
         setattr(entity, attribute, new_value)
-        if isinstance(entity, OrderBase):
-            event = events.OrderAttributeUpdated(id_=id_, attribute=attribute, new_value=new_value)
-            entity.events.append(event)
+        # if isinstance(entity, OrderBase):
+        #     event = events.OrderAttributeUpdated(id_=id_, attribute=attribute, new_value=new_value)
+        #     entity.events.append(event)
         return entity
 
 
@@ -106,6 +110,8 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 class FakeFrontend(AbstractFrontendInterface):
 
+    def update_plotting_frontend(self, x: list[float], y: list[float]) -> None:
+        pass
 
     def handle_account_opened(self, id_: UUID) -> None:
         pass
@@ -144,12 +150,15 @@ def fake_bus(fake_uow):
 def default_account_name():
     return "Girokonto #1"
 
+
 @pytest.fixture
 def account_factory(default_account_name):
-    def _make_account():
+    def _make_account(name=default_account_name, interest_rate=0.0, assets=[], liabilities=[]):
         return Account(
-            name=default_account_name,
-            interest_rate=0.0,
+            name=name,
+            interest_rate=interest_rate,
+            assets=assets,
+            liabilities=liabilities,
         )
     return _make_account
 
