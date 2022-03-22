@@ -47,3 +47,12 @@ class UpdateFrontendAfterOrderDeleted:
 
     def __call__(self, event: events.OrderDeleted):
         self.frontend.handle_order_deleted(event.id_)
+
+
+class UpdatePlottingFrontend:
+
+    def __init__(self, frontend: AbstractFrontendInterface):
+        self.frontend = frontend
+
+    def __call__(self, event: events.Event):
+        self.frontend.update_plotting_frontend()

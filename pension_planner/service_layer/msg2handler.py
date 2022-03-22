@@ -18,8 +18,7 @@ from pension_planner.service_layer.handlers.crud import OpenAccountHandler, Clos
     UpdateOrderAttributeHandler
 from pension_planner.service_layer.handlers.frontend import UpdateFrontendAfterAccountOpened, \
     UpdateFrontendAfterAccountClosed, ToggleDrawerHandler, UpdateFrontendAfterOrderCreated, \
-    UpdateFrontendAfterOrderDeleted
-
+    UpdateFrontendAfterOrderDeleted, UpdatePlottingFrontend
 
 # class AddAccountToOverview:
 #
@@ -170,6 +169,7 @@ COMMAND_HANDLERS = {
 EVENT_HANDLERS = {
     events.AccountOpened: [
         UpdateFrontendAfterAccountOpened,
+        UpdatePlottingFrontend,
         #     AddAccountToOverview,
         #     UpdateDropdownOptions,
         #     UpdatePlot

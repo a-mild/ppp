@@ -19,4 +19,8 @@ class AbstractFrontendInterface(ABC):
     @abstractmethod
     def handle_order_deleted(self, id_: UUID) -> None:
         ...
+
+    @abstractmethod
+    def update_plotting_frontend(self, x: list[float], y: list[float]) -> None:
+        ...
     
