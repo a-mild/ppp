@@ -16,7 +16,5 @@
             </v-tab>
         </v-tabs>
     </v-row>
-    <!--
-    -->
     {{output}}
 </v-container>

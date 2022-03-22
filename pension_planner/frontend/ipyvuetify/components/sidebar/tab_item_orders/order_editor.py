@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import Union
 from uuid import UUID
 
 import ipyvuetify as v
@@ -182,14 +183,19 @@ class OrderEditor(v.VuetifyTemplate):
 
     def add_order(self, id_: UUID):
         order = views.fetch_order(id_, self.bus.uow)
-        self.output = f"{order!r}"
+        account_options = [{"text": name, "value": str(id_)}
+                           for name, id_
+                           in views.fetch_all_accounts(self.bus.uow).items()]
+        account_options = [{"text": "", "value": "None"}] + account_options
         if order["type"] == "single_order":
             widget = SingleOrderEditor(
                 bus=self.bus,
                 id_=order["id_"],
                 name=order["name"],
                 from_acc_id=str(order["from_acc_id"]),
+                from_acc_id_options=account_options,
                 target_acc_id=str(order["target_acc_id"]),
+                target_acc_id_options=account_options,
                 date=order["date"].strftime("%Y-%m"),
                 amount=order["amount"],
             )
@@ -199,7 +205,9 @@ class OrderEditor(v.VuetifyTemplate):
                 id_=order["id_"],
                 name=order["name"],
                 from_acc_id=str(order["from_acc_id"]),
+                from_acc_id_options=account_options,
                 target_acc_id=str(order["target_acc_id"]),
+                target_acc_id_options=account_options,
                 start_date=order["start_date"].strftime("%Y-%m"),
                 end_date=order["end_date"].strftime("%Y-%m"),
                 amount=order["amount"],
@@ -216,6 +224,15 @@ class OrderEditor(v.VuetifyTemplate):
 
     def delete_order(self, id_: UUID):
         self.orders.pop(str(id_))
+
+    def update_dropdowns(self, id_: UUID):
+        account = views.fetch_account(id_, self.bus.uow)
+        self.output = f"update dropdowns {account!r}"
+        new_option = [{"text": account["name"], "value": str(account["id_"])}]
+        for order in self.orders.values():
+            widget: Union[SingleOrderEditor, StandingOrderEditor] = order["widget"]
+            widget.from_acc_id_options = widget.from_acc_id_options + new_option
+            widget.target_acc_id_options = widget.target_acc_id_options + new_option
 
     def change_name(self, id_: UUID, new_name: str):
         return NotImplemented

@@ -1,3 +1,5 @@
+from datetime import date
+
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -13,7 +15,7 @@ class PlotlyPlottingFrontend(AbstractPlottingFrontend):
         fig.add_scatter(y=list(range(10)))
         self.main.figure = fig
 
-    def update_with(self, x: list[float], y: list[float]) -> None:
+    def update_with(self, x: list[date], y: list[float]) -> None:
         trace = self.main.figure.data[0]
         trace.x = x
         trace.y = y

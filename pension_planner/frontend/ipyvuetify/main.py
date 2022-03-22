@@ -23,6 +23,7 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
     def handle_account_opened(cls, id_: UUID) -> None:
         assert cls.app is not None
         cls.app.sidebar.tab_item_accounts.add_account(id_)
+        cls.app.sidebar.tab_item_orders.order_editor.update_dropdowns(id_)
 
     @classmethod
     def handle_account_closed(cls, id_: UUID) -> None:
