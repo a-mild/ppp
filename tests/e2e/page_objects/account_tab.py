@@ -1,5 +1,5 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import BaseWebElement
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 
 
@@ -11,18 +11,18 @@ class AccountController:
     account_name = TextInputField((By.ID, "account_name"))
     interest_rate = TextInputField((By.ID, "interest_rate"))
 
-    def __init__(self, parent: BaseBaseWebElement) -> None:
+    def __init__(self, parent: WebElement) -> None:
         self.parent = parent
 
 
 class AccountsList:
 
-    def __init__(self, tabs_accounts: BaseWebElement, tabs_items_accounts: BaseWebElement) -> None:
+    def __init__(self, tabs_accounts: WebElement, tabs_items_accounts: WebElement) -> None:
         self.tabs_accounts = tabs_accounts
         self.tabs_items_accounts = tabs_items_accounts
 
     @property
-    def tabs(self) -> list[BaseWebElement]:
+    def tabs(self) -> list[WebElement]:
         return self.tabs_accounts.find_elements(By.CLASS_NAME, "v-tab")
 
     def __getitem__(self, item):

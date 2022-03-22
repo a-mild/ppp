@@ -27,7 +27,7 @@ single_order_name_factory = name_generator("Einzelauftrag")
 standing_order_name_factory = name_generator("Dauerauftrag")
 
 
-@dataclass
+@dataclass(frozen=True)
 class OpenAccount(Command):
     name: str = field(default_factory=lambda: next(account_name_factory))
     interest_rate: float = 0.0
@@ -35,14 +35,19 @@ class OpenAccount(Command):
     liabilities: list[OrderBase] = field(default_factory=list)
 
 
-@dataclass
+@dataclass(frozen=True)
+class CloseAccount(Command):
+    id_: UUID
+
+
+@dataclass(frozen=True)
 class UpdateAccountAttribute(Command):
     id_: UUID
     attribute: str
     new_value: Any
 
 
-@dataclass
+@dataclass(frozen=True)
 class CreateSingleOrder(Command):
     name: str = field(default_factory=lambda: next(single_order_name_factory))
     target_acc_id: UUID | None = None
@@ -51,7 +56,7 @@ class CreateSingleOrder(Command):
     amount: float = 100
 
 
-@dataclass
+@dataclass(frozen=True)
 class CreateStandingOrder(Command):
     name: str = field(default_factory=lambda: next(standing_order_name_factory))
     target_acc_id: UUID | None = None
@@ -61,13 +66,13 @@ class CreateStandingOrder(Command):
     amount: float = 100
 
 
-@dataclass
+@dataclass(frozen=True)
+class DeleteOrder(Command):
+    id_: UUID
+
+
+@dataclass(frozen=True)
 class UpdateOrderAttribute(Command):
     id_: UUID
     attribute: str
     new_value: Any
-
-
-@dataclass(frozen=True)
-class CloseAccount(Command):
-    id_: UUID

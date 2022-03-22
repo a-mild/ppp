@@ -65,3 +65,26 @@ class PlaceStandingOrderHandler:
         with self.uow:
             self.uow.orders.add(standing_order)
         return standing_order.id_
+
+
+class DeleteOrderHandler:
+
+    def __init__(self, uow: AbstractUnitOfWork):
+        self.uow = uow
+
+    def __call__(self, command: commands.DeleteOrder) -> None:
+        with self.uow:
+            self.uow.orders.delete(command.id_)
+
+
+class UpdateOrderAttributeHandler:
+
+    def __init__(self, uow: AbstractUnitOfWork):
+        self.uow = uow
+
+    def __call__(self, command: commands.UpdateOrderAttribute):
+        with self.uow:
+            self.uow.orders.update(
+                id_=command.id_,
+                attribute=command.attribute,
+                new_value=command.new_value)

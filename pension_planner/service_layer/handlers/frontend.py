@@ -36,6 +36,14 @@ class UpdateFrontendAfterOrderCreated:
     def __init__(self, frontend: AbstractFrontendInterface):
         self.frontend = frontend
 
-    def __call__(self, event: events.AccountOpened):
+    def __call__(self, event: events.OrderCreated):
         self.frontend.handle_order_created(event.id_)
 
+
+class UpdateFrontendAfterOrderDeleted:
+
+    def __init__(self, frontend: AbstractFrontendInterface):
+        self.frontend = frontend
+
+    def __call__(self, event: events.OrderDeleted):
+        self.frontend.handle_order_deleted(event.id_)

@@ -106,10 +106,17 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 class FakeFrontend(AbstractFrontendInterface):
 
+
     def handle_account_opened(self, id_: UUID) -> None:
         pass
 
     def handle_account_closed(self, id_: UUID) -> None:
+        pass
+
+    def handle_order_created(self, id_: UUID) -> None:
+        pass
+
+    def handle_order_deleted(self, id_: UUID) -> None:
         pass
 
 

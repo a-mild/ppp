@@ -8,7 +8,9 @@ from pension_planner.service_layer.messagebus import MessageBus
 
 
 class IPyVuetifyFrontend(AbstractFrontendInterface):
-    app = None
+
+    app: App | None = None
+    plotting_frontend = None
 
     @classmethod
     def handle_toggle_drawer(cls):
@@ -28,8 +30,17 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
         cls.app.sidebar.tab_item_orders.order_editor.add_order(id_)
 
     @classmethod
+    def handle_order_deleted(cls, id_: UUID) -> None:
+        cls.app.sidebar.tab_item_orders.order_editor.delete_order(id_)
+
+    @classmethod
+    def update_plotting_frontend(cls, x: list[float], y: list[float]):
+        cls.plotting_frontend.update_with(x, y)
+
+    @classmethod
     def setup(cls, bus: MessageBus) -> None:
         cls.app = App(bus)
+        # cls.plotting_frontend = plotting_frontend(cls.app.main)
 
     @classmethod
     def show(cls) -> App:

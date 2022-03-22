@@ -15,4 +15,8 @@ class AbstractFrontendInterface(ABC):
     @abstractmethod
     def handle_order_created(self, id_: UUID) -> None:
         ...
+
+    @abstractmethod
+    def handle_order_deleted(self, id_: UUID) -> None:
+        ...
     

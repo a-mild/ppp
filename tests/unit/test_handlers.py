@@ -2,7 +2,7 @@ import logging
 
 from pension_planner.domain import commands
 from pension_planner.domain.commands import OpenAccount, UpdateAccountAttribute, CreateSingleOrder, CreateStandingOrder, \
-    UpdateOrderAttribute
+    UpdateOrderAttribute, DeleteOrder
 
 
 # TODO need to fake out frontend or change handlers to make this test pass
@@ -49,6 +49,14 @@ def test_place_standing_order(fake_bus):
     [id_] = fake_bus.handle(command)
     assert fake_bus.uow.committed is True
     assert id_ is not None
+
+
+def test_delete_order(fake_bus):
+    [id_] = fake_bus.handle(CreateStandingOrder())
+
+    fake_bus.handle(DeleteOrder(id_=id_))
+
+    assert fake_bus.uow.orders.get(id_) is None
 
 
 def test_update_order_attribute(fake_bus):

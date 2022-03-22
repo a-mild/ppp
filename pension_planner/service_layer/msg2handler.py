@@ -14,33 +14,13 @@ from pension_planner.domain.bank_statement_service import AbstractBankStatementR
 from pension_planner.domain.orders import SingleOrder, StandingOrder, ORDER_ATTRIBUTES
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer.handlers.crud import OpenAccountHandler, CloseAccountHandler, \
-    UpdateAccountAttributeHandler, PlaceSingleOrderHandler, PlaceStandingOrderHandler
+    UpdateAccountAttributeHandler, PlaceSingleOrderHandler, PlaceStandingOrderHandler, DeleteOrderHandler, \
+    UpdateOrderAttributeHandler
 from pension_planner.service_layer.handlers.frontend import UpdateFrontendAfterAccountOpened, \
-    UpdateFrontendAfterAccountClosed, ToggleDrawerHandler, UpdateFrontendAfterOrderCreated
-from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
+    UpdateFrontendAfterAccountClosed, ToggleDrawerHandler, UpdateFrontendAfterOrderCreated, \
+    UpdateFrontendAfterOrderDeleted
 
 
-
-#
-# class UpdateOrderAttributeHandler:
-#
-#     def __init__(self, uow: AbstractUnitOfWork, bank_statement_repo: AbstractBankStatementRepository):
-#         self.uow = uow
-#         self.bank_statement_repo = bank_statement_repo
-#
-#     def __call__(self, command: commands.UpdateOrderAttribute):
-#         with self.uow:
-#             self.uow.orders.update(
-#                 id_=command.id_,
-#                 attribute=command.attribute,
-#                 new_value=command.new_value)
-#         self.bank_statement_repo.update_order(
-#             id_=command.id_,
-#             attribute=command.attribute,
-#             new_value=command.new_value
-#         )
-#
-#
 # class AddAccountToOverview:
 #
 #     def __init__(self, uow: AbstractUnitOfWork):
@@ -174,6 +154,7 @@ from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 #         THE_APP.main.figure = fig
 
 
+
 COMMAND_HANDLERS = {
     commands.ToggleDrawer: ToggleDrawerHandler,
     commands.OpenAccount: OpenAccountHandler,
@@ -181,9 +162,9 @@ COMMAND_HANDLERS = {
     commands.UpdateAccountAttribute: UpdateAccountAttributeHandler,
     commands.CreateSingleOrder: PlaceSingleOrderHandler,
     commands.CreateStandingOrder: PlaceStandingOrderHandler,
-    # commands.UpdateOrderAttribute: UpdateOrderAttributeHandler
+    commands.DeleteOrder: DeleteOrderHandler,
+    commands.UpdateOrderAttribute: UpdateOrderAttributeHandler
 }
-
 
 
 EVENT_HANDLERS = {
@@ -201,12 +182,10 @@ EVENT_HANDLERS = {
     ],
     events.OrderCreated: [
         UpdateFrontendAfterOrderCreated
-        # UpdateOrderEditor,
-        # UpdatePlot
+    ],
+    events.OrderDeleted: [
+        UpdateFrontendAfterOrderDeleted,
     ],
     events.OrderAttributeUpdated: [
-        # UpdateDropdownOptions,
-        # UpdateOverview,
-        # UpdatePlot
     ],
 }
