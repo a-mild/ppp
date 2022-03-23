@@ -1,6 +1,5 @@
 <template>
     <v-row>
-    <v-col>
         <v-menu offset-y>
             <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -25,9 +24,5 @@
                 </v-list-item>
               </v-list>
         </v-menu>
-    </v-col>
-    <v-col>
-        {{output}}
-    </v-col>
     </v-row>
 </template>

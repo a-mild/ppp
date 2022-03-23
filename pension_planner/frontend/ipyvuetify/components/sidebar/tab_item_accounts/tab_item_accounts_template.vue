@@ -1,10 +1,17 @@
 <v-container id="tab-item-accounts">
     <v-row>
-    <v-btn id="open_account" @click="open_account">
+    <v-btn
+        id="open_account"
+        color="primary"
+        small
+        dark
+        @click="open_account"
+    >
         <v-icon>mdi-plus-box</v-icon>
         Konto eröffnen
     </v-btn>
     </v-row>
+    <v-divider></v-divider>
     <v-row>
         <v-tabs-items v-model="tab" id="tabs-items-accounts">
             <v-tab-item v-for="(acc, id_) in accounts" >
@@ -38,5 +45,4 @@
             </v-tab>
         </v-tabs>
     </v-row>
-    {{ output }}
 </v-container>

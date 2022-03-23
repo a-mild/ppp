@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from typing import Union
 from uuid import UUID
@@ -20,8 +19,8 @@ def get_options(accounts, exclude: str):
     else:
         exclude = UUID(exclude)
     options = [
-        {"text": name, "value": str(id_), "disabled": True if id_ == exclude else False}
-        for name, id_ in accounts.items()
+        {"value": str(id_), "text": name, "disabled": True if id_ == exclude else False}
+        for id_, name in accounts
     ]
     options = [{"text": "", "value": "None", "disabled": False}] + options
     return options
@@ -42,8 +41,6 @@ class SingleOrderEditor(v.VuetifyTemplate):
 
     amount = traitlets.Float().tag(sync=True)
 
-    output = traitlets.Unicode().tag(sync=True)
-
     def __init__(self, bus: MessageBus, id_: UUID, *args, **kwargs):
         self.bus = bus
         self.id_ = id_
@@ -57,7 +54,6 @@ class SingleOrderEditor(v.VuetifyTemplate):
             new_value=self.name,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_from_acc_id(self, from_acc_id: str):
         new_value = None if from_acc_id == "None" else UUID(from_acc_id)
@@ -67,7 +63,6 @@ class SingleOrderEditor(v.VuetifyTemplate):
             new_value=new_value,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_target_acc_id(self, target_acc_id: str):
         new_value = None if target_acc_id == "None" else UUID(target_acc_id)
@@ -77,7 +72,6 @@ class SingleOrderEditor(v.VuetifyTemplate):
             new_value=new_value,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_date(self, date_string: str):
         date = datetime.strptime(date_string, "%Y-%m")
@@ -87,7 +81,6 @@ class SingleOrderEditor(v.VuetifyTemplate):
             new_value=date,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_amount(self, amount=None):
         command = commands.UpdateOrderAttribute(
@@ -96,7 +89,6 @@ class SingleOrderEditor(v.VuetifyTemplate):
             new_value=float(amount),
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def update_dropdown_options(self):
         accounts = views.fetch_all_accounts(self.bus.uow)
@@ -122,8 +114,6 @@ class StandingOrderEditor(v.VuetifyTemplate):
 
     amount = traitlets.Float().tag(sync=True)
 
-    output = traitlets.Unicode().tag(sync=True)
-
     def __init__(self, bus: MessageBus, id_: UUID, *args, **kwargs):
         self.bus = bus
         self.id_ = id_
@@ -137,7 +127,6 @@ class StandingOrderEditor(v.VuetifyTemplate):
             new_value=self.name,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_from_acc_id(self, from_acc_id: str):
         new_value = None if from_acc_id == "None" else UUID(from_acc_id)
@@ -147,7 +136,6 @@ class StandingOrderEditor(v.VuetifyTemplate):
             new_value=new_value,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_target_acc_id(self, target_acc_id: str):
         new_value = None if target_acc_id == "None" else UUID(target_acc_id)
@@ -157,7 +145,6 @@ class StandingOrderEditor(v.VuetifyTemplate):
             new_value=new_value,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_start_date(self, date_string: str):
         date = datetime.strptime(date_string, "%Y-%m")
@@ -167,7 +154,6 @@ class StandingOrderEditor(v.VuetifyTemplate):
             new_value=date,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_end_date(self, date_string: str):
         date = datetime.strptime(date_string, "%Y-%m")
@@ -177,7 +163,6 @@ class StandingOrderEditor(v.VuetifyTemplate):
             new_value=date,
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_amount(self, amount=None):
         command = commands.UpdateOrderAttribute(
@@ -186,7 +171,6 @@ class StandingOrderEditor(v.VuetifyTemplate):
             new_value=float(amount),
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def update_dropdown_options(self):
         accounts = views.fetch_all_accounts(self.bus.uow)
@@ -199,8 +183,6 @@ class OrderEditor(v.VuetifyTemplate):
 
     tab = traitlets.Int().tag(sync=True)
     orders = MutableDict().tag(sync=True, **w.widget_serialization)
-
-    output = traitlets.Unicode().tag(sync=True)
 
     def __init__(self, bus: MessageBus):
         self.bus = bus
@@ -237,7 +219,6 @@ class OrderEditor(v.VuetifyTemplate):
     def vue_delete_order(self, id_: str):
         command = commands.DeleteOrder(UUID(id_))
         self.bus.handle(command)
-        self.output = repr(command)
 
     def delete_order(self, id_: UUID):
         self.orders.pop(str(id_))
@@ -246,4 +227,3 @@ class OrderEditor(v.VuetifyTemplate):
         for order in self.orders.values():
             widget: Union[SingleOrderEditor, StandingOrderEditor] = order["widget"]
             widget.update_dropdown_options()
-

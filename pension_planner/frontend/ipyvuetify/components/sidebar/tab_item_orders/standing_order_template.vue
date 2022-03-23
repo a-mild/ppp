@@ -90,5 +90,4 @@
         @change="update_amount"
     >
     </v-text-field>
-    {{output}}
 </div>

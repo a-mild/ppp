@@ -11,7 +11,6 @@ class PlaceOrder(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "sidebar" / "tab_item_orders" / "place_order_template.vue")
 
     order_names = traitlets.List(default_value=list(ORDER_TYPES.keys())).tag(sync=True)
-    output = traitlets.Unicode().tag(sync=True)
 
     def __init__(self, bus: MessageBus):
         self.bus = bus
@@ -22,5 +21,4 @@ class PlaceOrder(v.VuetifyTemplate):
             command = CreateSingleOrder()
         elif name == "StandingOrder":
             command = CreateStandingOrder()
-        self.output = f"{command!r}"
         self.bus.handle(command)

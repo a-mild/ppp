@@ -7,7 +7,6 @@ import ipyvuetify as v
 from pension_planner import views
 from pension_planner.domain import commands
 from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
-from pension_planner.frontend.ipyvuetify.utils import MutableDict
 from pension_planner.service_layer.messagebus import MessageBus
 
 
@@ -16,8 +15,6 @@ class TabItemAccounts(v.VuetifyTemplate):
 
     tab = traitlets.Any().tag(sync=True)
     accounts = traitlets.Dict().tag(sync=True)
-
-    output = traitlets.Unicode().tag(sync=True)
 
     def __init__(self, bus: MessageBus) -> None:
         self.bus = bus
@@ -35,14 +32,11 @@ class TabItemAccounts(v.VuetifyTemplate):
     def vue_delete_account(self, id_: str):
         command = commands.CloseAccount(id_=UUID(id_))
         self.bus.handle(command)
-        self.output = repr(command)
 
     def delete_account(self, account_id: UUID):
-        # self.accounts.pop(str(id_))
         self.accounts = {id_: account
                          for id_, account in self.accounts.items()
                          if not id_ == str(account_id)}
-        self.output = f"Deleted: {account_id!r}"
 
     def vue_update_name(self, id_: str):
         command = commands.UpdateAccountAttribute(
@@ -51,7 +45,6 @@ class TabItemAccounts(v.VuetifyTemplate):
             new_value=self.accounts[id_]["name"]
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"
 
     def vue_update_interest_rate(self, id_: str):
         command = commands.UpdateAccountAttribute(
@@ -60,4 +53,3 @@ class TabItemAccounts(v.VuetifyTemplate):
             new_value=self.accounts[id_]["interest_rate"]
         )
         self.bus.handle(command)
-        self.output = f"{command!r}"

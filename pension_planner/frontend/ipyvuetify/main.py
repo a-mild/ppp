@@ -6,7 +6,6 @@ import pandas as pd
 from pension_planner.domain import events
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.frontend.ipyvuetify.components.app import App
-from pension_planner.plotting_frontend.interface import AbstractPlottingFrontend
 from pension_planner.plotting_frontend.plotly import PlotlyPlottingFrontend
 from pension_planner.service_layer.messagebus import MessageBus
 
@@ -29,7 +28,8 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
 
     def handle_account_closed(self, id_: UUID) -> None:
         self.app.sidebar.tab_item_accounts.delete_account(id_)
-        # self.app.sidebar.tab_item_orders.order_editor.update_dropdowns()
+        self.app.sidebar.tab_item_orders.order_editor.update_dropdowns()
+        self.app.footer.output = "Closed Account"
 
     def handle_account_attribute_updated(self, event: events.AccountAttributeUpdated) -> None:
         if event.attribute == "name":
@@ -42,7 +42,8 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
         self.app.sidebar.tab_item_orders.order_editor.delete_order(id_)
 
     def handle_order_attribute_updated(self, event: events.OrderAttributeUpdated) -> None:
-        pass
+        if event.attribute in {"from_acc_id", "target_acc_id"}:
+            self.app.sidebar.tab_item_orders.order_editor.update_dropdowns()
 
     def update_plotting_frontend(self, df: pd.DataFrame) -> None:
         self.plotting_frontend.update_with(df)
