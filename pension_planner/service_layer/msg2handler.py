@@ -153,7 +153,6 @@ COMMAND_HANDLERS = {
     commands.CreateStandingOrder: PlaceStandingOrderHandler,
     commands.DeleteOrder: DeleteOrderHandler,
     commands.UpdateOrderAttribute: UpdateOrderAttributeHandler,
-    commands.LoadDatabase: LoadDatabaseHandler
 }
 
 
@@ -182,4 +181,7 @@ EVENT_HANDLERS = {
         UpdateFrontendAfterOrderAttributeUpdated,
         UpdatePlottingFrontend,
     ],
+    events.DatabaseUploaded: [
+        UpdatePlottingFrontend,
+    ]
 }

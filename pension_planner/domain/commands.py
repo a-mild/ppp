@@ -78,8 +78,3 @@ class UpdateOrderAttribute(Command):
     id_: UUID
     attribute: str
     new_value: Any
-
-
-@dataclass(frozen=True)
-class LoadDatabase:
-    filename: str

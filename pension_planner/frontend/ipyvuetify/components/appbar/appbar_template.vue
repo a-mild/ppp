@@ -9,6 +9,13 @@
                 <div style="font-size: 0.6em">{{ loaded_filename }}</div>
         </v-toolbar-title>
         <v-spacer></v-spacer>
+        <jupyter-widget :widget="upload_widget" />
+                {{output}}
+        <!--
+        <v-btn icon @click="upload_db" >
+            <v-icon>mdi-upload</v-icon>
+        </v-btn>
+        -->
         <v-btn
             icon
             @click="download_db()"

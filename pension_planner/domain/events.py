@@ -41,3 +41,8 @@ class OrderAttributeUpdated(Event):
     attribute: str
     old_value: Any
     new_value: Any
+
+
+@dataclass(frozen=True)
+class DatabaseUploaded(Event):
+    pass
