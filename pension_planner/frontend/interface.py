@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
+import pandas as pd
+
 from pension_planner.domain import events
 from pension_planner.service_layer.messagebus import MessageBus
 
@@ -24,7 +26,8 @@ class AbstractFrontendInterface(ABC):
         ...
 
     @abstractmethod
-    def update_plotting_frontend(self, x: list[float], y: list[float]) -> None:
+    def update_plotting_frontend(self, totals: pd.DataFrame) -> None:
+        """Receive a dataframe with the totals of each account as columns"""
         ...
 
     @abstractmethod

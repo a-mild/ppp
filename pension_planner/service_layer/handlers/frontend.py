@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 
 from pension_planner.domain import events, commands
-from pension_planner.domain.bank_statement_service import produce_bankstatement, concat_series, merge
+from pension_planner.domain.bank_statement_service import produce_bankstatement, concat_series, merge, BankStatement
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
@@ -82,12 +82,11 @@ class UpdatePlottingFrontend:
     def __call__(self, event: events.Event):
         with self.uow:
             accounts = self.uow.accounts.list()
-            bus_logger.debug(repr(accounts))
-            bank_statements = [produce_bankstatement(account) for account in accounts]
-            totals = merge([bstmt["total"] for bstmt in bank_statements])
+            bank_statements = [BankStatement(account) for account in accounts]
+            totals = merge([bstmt.total for bstmt in bank_statements])
+            totals = pd.melt(totals, ignore_index=False)
             if totals.empty is True:
                 bus_logger.debug("totals was empty")
                 return
-            total: pd.Series = totals.sum(axis=1)
-            self.frontend.update_plotting_frontend(x=total.index.tolist(), y=total.tolist())
+            self.frontend.update_plotting_frontend(totals)
 

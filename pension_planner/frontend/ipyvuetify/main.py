@@ -1,6 +1,8 @@
 import logging
 from uuid import UUID
 
+import pandas as pd
+
 from pension_planner.domain import events
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.frontend.ipyvuetify.components.app import App
@@ -42,8 +44,8 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
     def handle_order_attribute_updated(self, event: events.OrderAttributeUpdated) -> None:
         pass
 
-    def update_plotting_frontend(self, x: list[float], y: list[float]) -> None:
-        self.plotting_frontend.update_with(x, y)
+    def update_plotting_frontend(self, df: pd.DataFrame) -> None:
+        self.plotting_frontend.update_with(df)
         self.app.footer.output = f"Updated plot :)"
 
     def setup(self, bus: MessageBus) -> None:

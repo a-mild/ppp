@@ -38,21 +38,34 @@ def calc_interest(series: pd.Series, interest_rate: float = 0.0) -> pd.Series:
     return list(itertools.accumulate(series, lambda a, b: step(a, b, interest_rate_per_month)))
 
 
-def produce_bankstatement(account: Account) -> pd.DataFrame:
-    assets = merge(list(map(create_series, account.assets)))
-    liabilities = -merge(list(map(create_series, account.liabilities)))   # mind the minus!
-    merged = merge([assets, liabilities])
-    # return early if there is nothing to compute
-    if len(merged) == 0:
-        merged["total"] = []
-        return merged
-    # add one row below
-    merged.loc[min(merged.index) - 1*merged.index.freq] = 0
-    merged = merged.sort_index()
-    payments = (merged
-                .diff(1)
-                # .dropna(axis="rows")
-                .sum(axis=1)
-                )
-    merged["total"] = calc_interest(payments, account.interest_rate)
-    return merged
+class BankStatement:
+
+    def __init__(self, account: Account):
+        self.account = account
+
+    @property
+    def assets(self) -> pd.DataFrame:
+        return merge(list(map(create_series, self.account.assets)))
+
+    @property
+    def liabilities(self) -> pd.DataFrame:
+        return -merge(list(map(create_series, self.account.liabilities)))  # mind the minus!
+
+    @property
+    def all_timeseries(self):
+        return merge([self.assets, self.liabilities])
+
+    @property
+    def total(self):
+        all_ts = self.all_timeseries
+        if all_ts.empty is True:
+            return pd.Series(index=pd.DatetimeIndex([]), name=self.account.name)
+        all_ts.loc[min(all_ts.index) - 1 * all_ts.index.freq] = 0
+        all_ts = all_ts.sort_index()
+        payments = (all_ts
+                    .diff(1)
+                    # .dropna(axis="rows")
+                    .sum(axis=1)
+                    )
+        data = calc_interest(payments, self.account.interest_rate)
+        return pd.Series(data, index=payments.index, name=self.account.name)

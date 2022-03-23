@@ -4,7 +4,8 @@ from uuid import uuid4
 import pandas as pd
 import pytest
 
-from pension_planner.domain.bank_statement_service import produce_bankstatement, create_series, concat_series, merge
+from pension_planner.domain.bank_statement_service import produce_bankstatement, create_series, concat_series, merge, \
+    BankStatement
 from pension_planner.domain.orders import SingleOrder, StandingOrder
 
 
@@ -99,9 +100,10 @@ def test_merge_two_orders(single_order_factory, standing_order_factory):
 
 def test_bankstatement_for_account_with_no_orders(account_factory):
     account = account_factory()
-    bank_statement = produce_bankstatement(account)
-    assert bank_statement.empty is True
-    assert "total" in bank_statement.columns
+    bank_statement = BankStatement(account)
+    assert bank_statement.all_timeseries.empty is True
+    assert bank_statement.total.empty is True
+    assert bank_statement.total.name == account.name
 
 
 def test_bankstatement(account_factory, single_order_factory, standing_order_factory):
@@ -125,9 +127,12 @@ def test_bankstatement(account_factory, single_order_factory, standing_order_fac
         liabilities=[single_order],
     )
 
-    bank_statement = produce_bankstatement(account)
-    assert len(bank_statement) == 25
-    assert bank_statement.loc[max(bank_statement.index), "total"] == 0
+    bank_statement = BankStatement(account)
+    assert len(bank_statement.all_timeseries) == 24
+    total = bank_statement.total
+    assert total.name == account.name
+    assert len(total) == 25
+    assert total.iloc[-1] == 0
 
 
 def test_bankstatement_with_interest_rate(
@@ -152,18 +157,20 @@ def test_bankstatement_with_interest_rate(
         liabilities=[single_order],
     )
 
-    bank_statement = produce_bankstatement(account)
-    assert bank_statement.loc[max(bank_statement.index), "total"] > 0
+    bank_statement = BankStatement(account)
+    assert bank_statement.total.iloc[-1] > 0
 
 
 def test_merge_totals_of_empty_bankstatements(account_factory):
     account1 = account_factory()
     account2 = account_factory()
-    bstmt1 = produce_bankstatement(account1)
-    bstmt2 = produce_bankstatement(account2)
+    bstmt1 = BankStatement(account1)
+    bstmt2 = BankStatement(account2)
 
-    merged = merge([bstmt["total"] for bstmt in [bstmt1, bstmt2]])
-    assert merged.empty is True
+    totals = merge([bstmt.total for bstmt in [bstmt1, bstmt2]])
+    assert account1.name in totals.columns
+    assert account2.name in totals.columns
+    assert totals.empty is True
 
 
 def test_merge_totals_of_bankstatements(
@@ -193,9 +200,11 @@ def test_merge_totals_of_bankstatements(
         liabilities=[single_order]
     )
 
-    bank_statement1 = produce_bankstatement(account1)
-    bank_statement2 = produce_bankstatement(account2)
+    bank_statement1 = BankStatement(account1)
+    bank_statement2 = BankStatement(account2)
 
-    merged = merge([bstmt["total"] for bstmt in [bank_statement1, bank_statement2]])
-    total = merged.sum(axis=1)
-    assert total.empty is False
+    totals = merge([bstmt.total for bstmt in [bank_statement1, bank_statement2]])
+    assert account1.name in totals.columns
+    assert account2.name in totals.columns
+    assert totals.empty is False
+    assert len(totals) == 25        # not 24 because we had to add a row
