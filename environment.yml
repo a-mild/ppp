@@ -12,3 +12,4 @@ dependencies:
   - ipyvuetify
   - ipywidgets
   - voila>=0.2.11
+  - plotly
