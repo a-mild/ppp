@@ -9,11 +9,11 @@ from pension_planner.plotting_frontend.interface import AbstractPlottingFrontend
 
 class PlotlyPlottingFrontend(AbstractPlottingFrontend):
 
+
     def __init__(self, main: Main) -> None:
         self.main = main
-        fig = go.FigureWidget()
-        fig.add_scatter(y=list(range(10)))
-        self.main.figure = fig
+        self.main.figure = go.FigureWidget()
+        self.main.figure.add_bar()
 
     def update_with(self, x: list[date], y: list[float]) -> None:
         trace = self.main.figure.data[0]

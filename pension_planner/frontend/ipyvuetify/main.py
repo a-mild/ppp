@@ -1,8 +1,7 @@
 import logging
-import random
 from uuid import UUID
 
-from pension_planner import views
+from pension_planner.domain import events
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.frontend.ipyvuetify.components.app import App
 from pension_planner.plotting_frontend.interface import AbstractPlottingFrontend
@@ -12,40 +11,44 @@ from pension_planner.service_layer.messagebus import MessageBus
 
 class IPyVuetifyFrontend(AbstractFrontendInterface):
 
-    app: App | None = None
-    plotting_frontend: AbstractPlottingFrontend | None = None
+    def __init__(self):
+        self.app = None
+        self.plotting_frontend = None
 
-    @classmethod
-    def handle_toggle_drawer(cls):
-        cls.app.sidebar.toggle_drawer()
+    def handle_toggle_drawer(self):
+        self.app.sidebar.toggle_drawer()
+        self.app.footer.output = "Toggled Drawer"
 
-    @classmethod
-    def handle_account_opened(cls, id_: UUID) -> None:
-        assert cls.app is not None
-        cls.app.sidebar.tab_item_accounts.add_account(id_)
-        cls.app.sidebar.tab_item_orders.order_editor.update_dropdowns(id_)
+    def handle_account_opened(self, id_: UUID) -> None:
+        assert self.app is not None
+        self.app.sidebar.tab_item_accounts.add_account(id_)
+        self.app.sidebar.tab_item_orders.order_editor.update_dropdowns()
+        self.app.footer.output = "Opened Account"
 
-    @classmethod
-    def handle_account_closed(cls, id_: UUID) -> None:
-        cls.app.sidebar.tab_item_accounts.delete_account(id_)
+    def handle_account_closed(self, id_: UUID) -> None:
+        self.app.sidebar.tab_item_accounts.delete_account(id_)
+        # self.app.sidebar.tab_item_orders.order_editor.update_dropdowns()
 
-    @classmethod
-    def handle_order_created(cls, id_: UUID) -> None:
-        cls.app.sidebar.tab_item_orders.order_editor.add_order(id_)
+    def handle_account_attribute_updated(self, event: events.AccountAttributeUpdated) -> None:
+        if event.attribute == "name":
+            self.app.sidebar.tab_item_orders.order_editor.update_dropdowns()
 
-    @classmethod
-    def handle_order_deleted(cls, id_: UUID) -> None:
-        cls.app.sidebar.tab_item_orders.order_editor.delete_order(id_)
+    def handle_order_created(self, id_: UUID) -> None:
+        self.app.sidebar.tab_item_orders.order_editor.add_order(id_)
 
-    @classmethod
-    def update_plotting_frontend(cls, x: list[float] = None, y: list[float] = None) -> None:
-        cls.plotting_frontend.update_with(x, y)
+    def handle_order_deleted(self, id_: UUID) -> None:
+        self.app.sidebar.tab_item_orders.order_editor.delete_order(id_)
 
-    @classmethod
-    def setup(cls, bus: MessageBus) -> None:
-        cls.app = App(bus)
-        cls.plotting_frontend = PlotlyPlottingFrontend(cls.app.main)
+    def handle_order_attribute_updated(self, event: events.OrderAttributeUpdated) -> None:
+        pass
 
-    @classmethod
-    def show(cls) -> App:
-        return cls.app
+    def update_plotting_frontend(self, x: list[float], y: list[float]) -> None:
+        self.plotting_frontend.update_with(x, y)
+        self.app.footer.output = f"Updated plot :)"
+
+    def setup(self, bus: MessageBus) -> None:
+        self.app = App(bus)
+        self.plotting_frontend = PlotlyPlottingFrontend(self.app.main)
+
+    def show(self) -> App:
+        return self.app

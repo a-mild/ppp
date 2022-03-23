@@ -25,7 +25,7 @@ def concat_series(df: Union[pd.Series, pd.DataFrame], other: Union[pd.Series, pd
 
 
 def merge(series_list: Iterable[pd.Series]) -> pd.DataFrame:
-    return functools.reduce(concat_series, series_list, pd.DataFrame())
+    return functools.reduce(concat_series, series_list, pd.DataFrame(index=pd.DatetimeIndex([])))
 
 
 def step(balance, payment, interest_rate):
@@ -40,8 +40,12 @@ def calc_interest(series: pd.Series, interest_rate: float = 0.0) -> pd.Series:
 
 def produce_bankstatement(account: Account) -> pd.DataFrame:
     assets = merge(list(map(create_series, account.assets)))
-    liabilities = -merge(map(create_series, account.liabilities))   # mind the minus!
-    merged = concat_series(assets, liabilities)
+    liabilities = -merge(list(map(create_series, account.liabilities)))   # mind the minus!
+    merged = merge([assets, liabilities])
+    # return early if there is nothing to compute
+    if len(merged) == 0:
+        merged["total"] = []
+        return merged
     # add one row below
     merged.loc[min(merged.index) - 1*merged.index.freq] = 0
     merged = merged.sort_index()

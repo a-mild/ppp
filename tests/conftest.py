@@ -1,6 +1,6 @@
 from datetime import date
 from pathlib import Path
-from typing import Union, Any, Callable
+from typing import Union, Any
 from uuid import UUID
 
 import pytest
@@ -12,8 +12,10 @@ from pension_planner.adapters.repositories import AbstractRepository
 from pension_planner.bootstrap import bootstrap
 from pension_planner.domain import events
 from pension_planner.domain.account import Account
+from pension_planner.domain.commands import account_name_factory, single_order_name_factory, standing_order_name_factory
 from pension_planner.domain.orders import SingleOrder, StandingOrder, OrderBase
 from pension_planner.frontend.interface import AbstractFrontendInterface
+from pension_planner.service_layer.messagebus import MessageBus
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
 
@@ -84,9 +86,6 @@ class FakeRepository(AbstractRepository):
         if not entity:
             return
         setattr(entity, attribute, new_value)
-        # if isinstance(entity, OrderBase):
-        #     event = events.OrderAttributeUpdated(id_=id_, attribute=attribute, new_value=new_value)
-        #     entity.events.append(event)
         return entity
 
 
@@ -110,8 +109,22 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 class FakeFrontend(AbstractFrontendInterface):
 
-    def update_plotting_frontend(self, x: list[float], y: list[float]) -> None:
+    def setup(self, bus: MessageBus) -> None:
         pass
+
+    def __init__(self):
+        self.x = None
+        self.y = None
+
+    def handle_account_attribute_updated(self, event: events.AccountAttributeUpdated) -> None:
+        pass
+
+    def handle_order_attribute_updated(self, event: events.OrderAttributeUpdated) -> None:
+        pass
+
+    def update_plotting_frontend(self, x: list[float], y: list[float]) -> None:
+        self.x = x
+        self.y = y
 
     def handle_account_opened(self, id_: UUID) -> None:
         pass
@@ -135,25 +148,28 @@ def fake_uow():
 
 
 @pytest.fixture
-def fake_bus(fake_uow):
-    dependencies = {
-        AbstractUnitOfWork: fake_uow,
-        AbstractFrontendInterface: FakeFrontend()
-    }
+def fake_frontend():
+    return FakeFrontend()
+
+
+@pytest.fixture
+def fake_bus(fake_uow, fake_frontend):
     return bootstrap(
         start_orm=False,
-        dependencies=dependencies,
+        unit_of_work=fake_uow,
+        frontend=fake_frontend
     )
 
 
 @pytest.fixture
-def default_account_name():
-    return "Girokonto #1"
-
-
-@pytest.fixture
-def account_factory(default_account_name):
-    def _make_account(name=default_account_name, interest_rate=0.0, assets=[], liabilities=[]):
+def account_factory():
+    def _make_account(name=None, interest_rate=0.0, assets=None, liabilities=None):
+        if name is None:
+            name = next(account_name_factory)
+        if assets is None:
+            assets = []
+        if liabilities is None:
+            liabilities = []
         return Account(
             name=name,
             interest_rate=interest_rate,
@@ -162,15 +178,19 @@ def account_factory(default_account_name):
         )
     return _make_account
 
+
 @pytest.fixture
 def single_order_factory():
     def _make_single_order(
+            name=None,
             from_acc_id=None, target_acc_id=None,
             date_=date.today(),
             amount=0.0
     ) -> SingleOrder:
+        if name is None:
+            name = next(single_order_name_factory)
         return SingleOrder(
-            name="Einzelauftrag #1",
+            name=name,
             from_acc_id=from_acc_id,
             target_acc_id=target_acc_id,
             date=date_,
@@ -182,12 +202,15 @@ def single_order_factory():
 @pytest.fixture
 def standing_order_factory():
     def _make_standing_order(
+            name=None,
             from_acc_id=None, target_acc_id=None,
             start_date=date(2022, 1, 1), end_date=date(2022, 12, 1),
             amount=100.0
     ) -> StandingOrder:
+        if name is None:
+            name = next(standing_order_name_factory)
         return StandingOrder(
-            name="Dauerauftrag #1",
+            name=name,
             from_acc_id=from_acc_id,
             target_acc_id=target_acc_id,
             start_date=start_date,

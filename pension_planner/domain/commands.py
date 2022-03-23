@@ -3,6 +3,8 @@ from datetime import datetime, date
 from typing import Any
 from uuid import UUID
 
+from dateutil.relativedelta import relativedelta
+
 from pension_planner.domain.orders import OrderBase
 
 
@@ -52,7 +54,7 @@ class CreateSingleOrder(Command):
     name: str = field(default_factory=lambda: next(single_order_name_factory))
     target_acc_id: UUID | None = None
     from_acc_id: UUID | None = None
-    date: date = date.today()
+    date: date = date.today().replace(day=1)
     amount: float = 100
 
 
@@ -61,8 +63,8 @@ class CreateStandingOrder(Command):
     name: str = field(default_factory=lambda: next(standing_order_name_factory))
     target_acc_id: UUID | None = None
     from_acc_id: UUID | None = None
-    start_date: date = date.today()
-    end_date: date = date.today()
+    start_date: date = date.today().replace(day=1)
+    end_date: date = date.today().replace(day=1) + relativedelta(years=1)
     amount: float = 100
 
 

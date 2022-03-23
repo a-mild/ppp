@@ -19,12 +19,27 @@ def test_sa_repo_can_add_account(sa_account_repo, account_factory):
     assert revived.events == [AccountOpened(id_=acc_id)]
 
 
-def test_sa_repo_can_list_accounts(sa_account_repo, account_factory):
+def test_sa_repo_can_list_accounts(
+        sa_account_repo, sa_order_repo, account_factory, single_order_factory, standing_order_factory):
     acc1 = account_factory()
     acc2 = account_factory()
-    sa_account_repo.add(acc1)
-    sa_account_repo.add(acc2)
+    acc1_id = sa_account_repo.add(acc1)
+    acc2_id = sa_account_repo.add(acc2)
     sa_account_repo.session.commit()
+    single_order = single_order_factory(
+        date_=date(2020, 1, 1),
+        target_acc_id=acc1_id,
+        amount=1000.0,
+    )
+    standing_order = standing_order_factory(
+        target_acc_id=acc2_id,
+        start_date=date(2020, 1, 1),
+        end_date=date(2020, 12, 1),
+        amount=100.0
+    )
+    sa_order_repo.add(single_order)
+    sa_order_repo.add(standing_order)
+    sa_order_repo.session.commit()
 
     accounts = sa_account_repo.list()
     assert len(accounts) == 2

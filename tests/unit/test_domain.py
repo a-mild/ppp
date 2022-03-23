@@ -10,7 +10,7 @@ def test_changing_attribute_puts_event(account_factory):
     account = account_factory()
     old_name = account.name
     new_name = "Girokonto #2"
-    account.name = new_name
+    setattr(account, "name", new_name)
     event = events.AccountAttributeUpdated(
         id_=account.id_,
         attribute="name",
@@ -18,3 +18,7 @@ def test_changing_attribute_puts_event(account_factory):
         new_value=new_name,
     )
     assert event in account.events
+
+
+def test_timeseries():
+    return NotImplemented

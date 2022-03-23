@@ -21,7 +21,7 @@ class OpenAccountHandler:
         )
         with self.uow:
             self.uow.accounts.add(account)
-        return account.id_
+            return account.id_
 
 
 class CloseAccountHandler:
@@ -56,7 +56,7 @@ class PlaceSingleOrderHandler:
         single_order = SingleOrder(**asdict(command))
         with self.uow:
             self.uow.orders.add(single_order)
-        return single_order.id_
+            return single_order.id_
 
 
 class PlaceStandingOrderHandler:
@@ -68,7 +68,7 @@ class PlaceStandingOrderHandler:
         standing_order = StandingOrder(**asdict(command))
         with self.uow:
             self.uow.orders.add(standing_order)
-        return standing_order.id_
+            return standing_order.id_
 
 
 class DeleteOrderHandler:

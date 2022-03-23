@@ -9,12 +9,13 @@ from pension_planner.service_layer.unit_of_work import SQLAlchemyUnitOfWork
 pytestmark = pytest.mark.usefixtures("mappers")
 
 
-def test_all_accounts(session_factory, base_account):
+def test_all_accounts(session_factory, account_factory):
+    account = account_factory()
     uow = SQLAlchemyUnitOfWork(session_factory)
     with uow:
-        uow.accounts.add(base_account)
+        uow.accounts.add(account)
     accounts = views.fetch_all_accounts(uow)
-    assert accounts == [(base_account.name, base_account.id_)]
+    assert accounts == [(account.name, account.id_)]
 
 
 def test_fetch_order(session_factory, single_order_factory, standing_order_factory):

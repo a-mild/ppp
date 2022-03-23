@@ -15,7 +15,7 @@ class TabItemAccounts(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "sidebar" / "tab_item_accounts" / "tab_item_accounts_template.vue")
 
     tab = traitlets.Any().tag(sync=True)
-    accounts = MutableDict().tag(sync=True)
+    accounts = traitlets.Dict().tag(sync=True)
 
     output = traitlets.Unicode().tag(sync=True)
 
@@ -30,14 +30,19 @@ class TabItemAccounts(v.VuetifyTemplate):
     def add_account(self, id_: UUID) -> None:
         account = views.fetch_account(id_, self.bus.uow)
         account.pop("id_")
-        self.accounts[str(id_)] = account
+        self.accounts = self.accounts | {str(id_): account}
 
     def vue_delete_account(self, id_: str):
         command = commands.CloseAccount(id_=UUID(id_))
         self.bus.handle(command)
+        self.output = repr(command)
 
-    def delete_account(self, id_: UUID):
-        self.accounts.pop(str(id_))
+    def delete_account(self, account_id: UUID):
+        # self.accounts.pop(str(id_))
+        self.accounts = {id_: account
+                         for id_, account in self.accounts.items()
+                         if not id_ == str(account_id)}
+        self.output = f"Deleted: {account_id!r}"
 
     def vue_update_name(self, id_: str):
         command = commands.UpdateAccountAttribute(

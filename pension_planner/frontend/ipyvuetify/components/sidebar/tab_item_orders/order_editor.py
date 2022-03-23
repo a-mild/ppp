@@ -14,15 +14,28 @@ from pension_planner.frontend.ipyvuetify.utils import MutableDict
 from pension_planner.service_layer.messagebus import MessageBus
 
 
+def get_options(accounts, exclude: str):
+    if exclude == "None":
+        exclude = None
+    else:
+        exclude = UUID(exclude)
+    options = [
+        {"text": name, "value": str(id_), "disabled": True if id_ == exclude else False}
+        for name, id_ in accounts.items()
+    ]
+    options = [{"text": "", "value": "None", "disabled": False}] + options
+    return options
+
+
 class SingleOrderEditor(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "sidebar" / "tab_item_orders" / "single_order_template.vue")
 
     name = traitlets.Unicode().tag(sync=True)
 
     from_acc_id = traitlets.Unicode().tag(sync=True)
-    from_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
+    from_acc_id_options = traitlets.List().tag(sync=True)
     target_acc_id = traitlets.Unicode().tag(sync=True)
-    target_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
+    target_acc_id_options = traitlets.List().tag(sync=True)
 
     datepicker_menu = traitlets.Bool(False).tag(sync=True)
     date = traitlets.Unicode().tag(sync=True)
@@ -35,6 +48,7 @@ class SingleOrderEditor(v.VuetifyTemplate):
         self.bus = bus
         self.id_ = id_
         super().__init__(*args, **kwargs)
+        self.update_dropdown_options()
 
     def vue_update_name(self, data=None):
         command = commands.UpdateOrderAttribute(
@@ -84,6 +98,11 @@ class SingleOrderEditor(v.VuetifyTemplate):
         self.bus.handle(command)
         self.output = f"{command!r}"
 
+    def update_dropdown_options(self):
+        accounts = views.fetch_all_accounts(self.bus.uow)
+        self.from_acc_id_options = get_options(accounts, exclude=self.target_acc_id)
+        self.target_acc_id_options = get_options(accounts, exclude=self.from_acc_id)
+
 
 class StandingOrderEditor(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "sidebar" / "tab_item_orders" / "standing_order_template.vue")
@@ -91,9 +110,9 @@ class StandingOrderEditor(v.VuetifyTemplate):
     name = traitlets.Unicode().tag(sync=True)
 
     from_acc_id = traitlets.Unicode().tag(sync=True)
-    from_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
+    from_acc_id_options = traitlets.List().tag(sync=True)
     target_acc_id = traitlets.Unicode().tag(sync=True)
-    target_acc_id_options = traitlets.List([{"text": "", "value": "None"}]).tag(sync=True)
+    target_acc_id_options = traitlets.List().tag(sync=True)
 
     start_date_menu = traitlets.Bool(False).tag(sync=True)
     start_date = traitlets.Unicode().tag(sync=True)
@@ -109,6 +128,7 @@ class StandingOrderEditor(v.VuetifyTemplate):
         self.bus = bus
         self.id_ = id_
         super().__init__(*args, **kwargs)
+        self.update_dropdown_options()
 
     def vue_update_name(self, data=None):
         command = commands.UpdateOrderAttribute(
@@ -168,6 +188,11 @@ class StandingOrderEditor(v.VuetifyTemplate):
         self.bus.handle(command)
         self.output = f"{command!r}"
 
+    def update_dropdown_options(self):
+        accounts = views.fetch_all_accounts(self.bus.uow)
+        self.from_acc_id_options = get_options(accounts, exclude=self.target_acc_id)
+        self.target_acc_id_options = get_options(accounts, exclude=self.from_acc_id)
+
 
 class OrderEditor(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "sidebar" / "tab_item_orders" / "order_editor_template.vue")
@@ -183,19 +208,13 @@ class OrderEditor(v.VuetifyTemplate):
 
     def add_order(self, id_: UUID):
         order = views.fetch_order(id_, self.bus.uow)
-        account_options = [{"text": name, "value": str(id_)}
-                           for name, id_
-                           in views.fetch_all_accounts(self.bus.uow).items()]
-        account_options = [{"text": "", "value": "None"}] + account_options
         if order["type"] == "single_order":
             widget = SingleOrderEditor(
                 bus=self.bus,
                 id_=order["id_"],
                 name=order["name"],
                 from_acc_id=str(order["from_acc_id"]),
-                from_acc_id_options=account_options,
                 target_acc_id=str(order["target_acc_id"]),
-                target_acc_id_options=account_options,
                 date=order["date"].strftime("%Y-%m"),
                 amount=order["amount"],
             )
@@ -205,9 +224,7 @@ class OrderEditor(v.VuetifyTemplate):
                 id_=order["id_"],
                 name=order["name"],
                 from_acc_id=str(order["from_acc_id"]),
-                from_acc_id_options=account_options,
                 target_acc_id=str(order["target_acc_id"]),
-                target_acc_id_options=account_options,
                 start_date=order["start_date"].strftime("%Y-%m"),
                 end_date=order["end_date"].strftime("%Y-%m"),
                 amount=order["amount"],
@@ -225,14 +242,8 @@ class OrderEditor(v.VuetifyTemplate):
     def delete_order(self, id_: UUID):
         self.orders.pop(str(id_))
 
-    def update_dropdowns(self, id_: UUID):
-        account = views.fetch_account(id_, self.bus.uow)
-        self.output = f"update dropdowns {account!r}"
-        new_option = [{"text": account["name"], "value": str(account["id_"])}]
+    def update_dropdowns(self):
         for order in self.orders.values():
             widget: Union[SingleOrderEditor, StandingOrderEditor] = order["widget"]
-            widget.from_acc_id_options = widget.from_acc_id_options + new_option
-            widget.target_acc_id_options = widget.target_acc_id_options + new_option
+            widget.update_dropdown_options()
 
-    def change_name(self, id_: UUID, new_name: str):
-        return NotImplemented

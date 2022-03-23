@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -34,6 +36,34 @@ def test_uow_can_add_entities(sa_uow, session, account_factory, single_order_fac
         assert account_revived == account
         assert single_order_revived == single_order
         assert standing_order_revived == standing_order
+
+
+def test_uow_can_retrieve_all_accounts(
+        sa_uow, account_factory, single_order_factory, standing_order_factory):
+    acc1 = account_factory()
+    acc2 = account_factory()
+    single_order = single_order_factory(
+        date_=date(2020, 1, 1),
+        target_acc_id=acc1.id_,
+        amount=1000.0,
+    )
+    standing_order = standing_order_factory(
+        target_acc_id=acc2.id_,
+        start_date=date(2020, 1, 1),
+        end_date=date(2020, 12, 1),
+        amount=100.0
+    )
+    with sa_uow:
+        sa_uow.accounts.add(acc1)
+        sa_uow.accounts.add(acc2)
+        sa_uow.orders.add(single_order)
+        sa_uow.orders.add(standing_order)
+
+    with sa_uow:
+        accounts = sa_uow.accounts.list()
+        assert len(accounts) == 2
+        assert len(accounts[0].assets) > 0
+        assert len(accounts[1].assets) > 0
 
 
 def test_uow_can_collect_entity_created_events(sa_uow, account_factory, single_order_factory):

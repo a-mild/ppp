@@ -1,4 +1,3 @@
-import logging
 from abc import ABC, abstractmethod
 from typing import Type
 from uuid import uuid4, UUID
@@ -63,7 +62,11 @@ class SingleOrder(OrderBase):
     _initialized: bool = field(default=False, repr=False)
 
     def get_timeseries(self) -> dict[datetime, float]:
-        return {self.date: self.amount}
+        return {ts: i * self.amount
+                for i, ts in enumerate(
+                rrule(MONTHLY, dtstart=self.date, until=self.date),
+                start=1)
+                }
 
 
 @dataclass(eq=False)
