@@ -1,21 +1,17 @@
 from inspect import signature
 
-from sqlalchemy import create_engine
-
-from pension_planner import config
 from pension_planner.adapters import orm
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer import msg2handler
 from pension_planner.service_layer.messagebus import MessageBus
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
 
-engine = create_engine(config.get_sqlite_uri())
-
 
 def bootstrap(
         unit_of_work: AbstractUnitOfWork,
         frontend: AbstractFrontendInterface,
         start_orm=True,
+        engine=None,
 ) -> MessageBus:
     dependencies = {
         AbstractUnitOfWork: unit_of_work,

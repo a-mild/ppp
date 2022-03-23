@@ -31,6 +31,7 @@ class AppBar(v.VuetifyTemplate):
 
     def vue_download_db(self, data=None):
         # see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs for details
+        # TODO: load current db file, not hardcoded file
         filename = "default.db"
         with open(filename, mode="rb") as f:
             content_b64 = b64encode(f.read()).decode()

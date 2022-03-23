@@ -48,16 +48,9 @@ class AbstractUnitOfWork(ABC):
         ...
 
 
-DEFAULT_SESSION_FACTORY = sessionmaker(
-    bind=create_engine(config.get_sqlite_uri()),
-    future=True,
-    expire_on_commit=False
-)
-
-
 class SQLAlchemyUnitOfWork(AbstractUnitOfWork):
 
-    def __init__(self, session_factory=DEFAULT_SESSION_FACTORY):
+    def __init__(self, session_factory):
         super().__init__()
         self.session_factory = session_factory
 

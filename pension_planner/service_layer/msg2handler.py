@@ -140,6 +140,9 @@ from pension_planner.service_layer.handlers.frontend import UpdateFrontendAfterA
 #         THE_APP.main.figure = fig
 
 
+class LoadDatabaseHandler:
+    pass
+
 
 COMMAND_HANDLERS = {
     commands.ToggleDrawer: ToggleDrawerHandler,
@@ -149,7 +152,8 @@ COMMAND_HANDLERS = {
     commands.CreateSingleOrder: PlaceSingleOrderHandler,
     commands.CreateStandingOrder: PlaceStandingOrderHandler,
     commands.DeleteOrder: DeleteOrderHandler,
-    commands.UpdateOrderAttribute: UpdateOrderAttributeHandler
+    commands.UpdateOrderAttribute: UpdateOrderAttributeHandler,
+    commands.LoadDatabase: LoadDatabaseHandler
 }
 
 
