@@ -1,10 +1,8 @@
 import traitlets
 
-import ipywidgets as widgets
+import ipywidgets as w
 import ipyvuetify as v
-from IPython import display
-
-from IPython.display import HTML, clear_output
+from IPython.display import HTML, clear_output, display
 from base64 import b64encode
 
 from pension_planner.frontend.ipyvuetify.components import COMPONENTS_DIR
@@ -19,27 +17,34 @@ download stolen from https://github.com/voila-dashboards/voila/issues/711
 class AppBar(v.VuetifyTemplate):
     template_file = str(COMPONENTS_DIR / "appbar" / "appbar_template.vue")
 
-    reset_traces_dialog = traitlets.Bool(default_value=False).tag(sync=True)
-
     loaded_filename = traitlets.Unicode(default_value="No file loaded").tag(sync=True)
-    file_upload_widget = traitlets.Any(widgets.FileUpload(
-        description="",
-        multiple=False
-    )).tag(sync=True, **widgets.widget_serialization)
-    file_download_dummy_outputwidget = traitlets.Any(widgets.Output()).tag(sync=True, **widgets.widget_serialization)
-    file = traitlets.Any().tag(sync=True)
 
-    accounts = traitlets.List().tag(sync=True)
-    active_tab = traitlets.Any().tag(sync=True)
+    download_output_dummy = traitlets.Any(w.Output()).tag(sync=True, **w.widget_serialization)
 
     def __init__(self, bus: MessageBus):
         self.bus = bus
         super().__init__()
-        # self.file_upload_widget.observe(self.upload_traces, "value")
 
     def vue_toggle_drawer(self, _):
         command = ToggleDrawer()
         self.bus.handle(command)
+
+    def vue_download_db(self, data=None):
+        # see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs for details
+        filename = "default.db"
+        with open(filename, mode="rb") as f:
+            content_b64 = b64encode(f.read()).decode()
+            data_url = f'data:application/octet-stream;base64,{content_b64}'
+            js_code = f"""
+                    var a = document.createElement('a');
+                    a.setAttribute('download', '{filename}');
+                    a.setAttribute('href', '{data_url}');
+                    a.click()
+                """
+        with self.download_output_dummy:
+            clear_output()
+            display(HTML(f'<script>{js_code}</script>'))
+
     #
     # def vue_reset_traces(self, data=None):
     #     self.reset_traces_dialog = False

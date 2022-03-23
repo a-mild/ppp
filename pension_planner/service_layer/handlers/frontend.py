@@ -1,14 +1,9 @@
-import logging
-
 import pandas as pd
 
 from pension_planner.domain import events, commands
-from pension_planner.domain.bank_statement_service import produce_bankstatement, concat_series, merge, BankStatement
+from pension_planner.domain.bank_statement_service import merge, BankStatement
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
-
-
-bus_logger = logging.getLogger("bus_logger")
 
 
 class ToggleDrawerHandler:
@@ -86,7 +81,5 @@ class UpdatePlottingFrontend:
             totals = merge([bstmt.total for bstmt in bank_statements])
             totals = pd.melt(totals, ignore_index=False)
             if totals.empty is True:
-                bus_logger.debug("totals was empty")
                 return
             self.frontend.update_plotting_frontend(totals)
-

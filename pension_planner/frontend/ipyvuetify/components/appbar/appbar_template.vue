@@ -9,6 +9,14 @@
                 <div style="font-size: 0.6em">{{ loaded_filename }}</div>
         </v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-btn
+            icon
+            @click="download_db()"
+        >
+            <v-icon>mdi-content-save</v-icon>
+        </v-btn>
+        <jupyter-widget :widget="download_output_dummy" />
+
         <!--
         <v-dialog
             v-model="reset_traces_dialog"

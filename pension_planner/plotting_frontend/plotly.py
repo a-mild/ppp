@@ -14,7 +14,7 @@ class PlotlyPlottingFrontend(AbstractPlottingFrontend):
     def __init__(self, main: Main) -> None:
         self.main = main
         self.main.figure = go.FigureWidget()
-        # self.main.figure.add_bar()
 
+    # TODO: prettify the plot
     def update_with(self, df: pd.DataFrame) -> None:
         self.main.figure = go.FigureWidget(px.bar(df, x=df.index, y="value", color="variable"))

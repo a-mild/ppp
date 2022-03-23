@@ -1,17 +1,4 @@
-import logging
-from dataclasses import asdict
-from typing import Union
-from uuid import UUID
-
-from ipyvue import VueWidget
-import plotly.graph_objects as go
-import plotly.express as px
-
-from pension_planner import views
 from pension_planner.domain import commands, events
-from pension_planner.domain.account import Account
-from pension_planner.domain.orders import SingleOrder, StandingOrder, ORDER_ATTRIBUTES
-from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer.handlers.crud import OpenAccountHandler, CloseAccountHandler, \
     UpdateAccountAttributeHandler, PlaceSingleOrderHandler, PlaceStandingOrderHandler, DeleteOrderHandler, \
     UpdateOrderAttributeHandler
