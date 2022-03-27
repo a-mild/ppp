@@ -18,7 +18,17 @@ class TabItemAccounts(v.VuetifyTemplate):
 
     def __init__(self, bus: MessageBus) -> None:
         self.bus = bus
+        self.load_all_accounts()
         super().__init__()
+
+    def load_all_accounts(self):
+        accounts = views.fetch_all_accounts(self.bus.uow)
+        self.accounts = {
+            str(id_): {
+                "name": name,
+                "interest_rate": interest_rate,
+            } for (id_, name, interest_rate) in accounts
+        }
 
     def vue_open_account(self, _=None):
         command = commands.OpenAccount()
@@ -28,6 +38,7 @@ class TabItemAccounts(v.VuetifyTemplate):
         account = views.fetch_account(id_, self.bus.uow)
         account.pop("id_")
         self.accounts = self.accounts | {str(id_): account}
+        self.tab = len(self.accounts) - 1
 
     def vue_delete_account(self, id_: str):
         command = commands.CloseAccount(id_=UUID(id_))
@@ -47,9 +58,10 @@ class TabItemAccounts(v.VuetifyTemplate):
         self.bus.handle(command)
 
     def vue_update_interest_rate(self, id_: str):
+        value = float(self.accounts[id_]["interest_rate"]) / 100
         command = commands.UpdateAccountAttribute(
             id_=UUID(id_),
             attribute="interest_rate",
-            new_value=self.accounts[id_]["interest_rate"]
+            new_value=value
         )
         self.bus.handle(command)

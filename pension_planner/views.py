@@ -18,9 +18,9 @@ def fetch_account(id_: UUID, uow: SQLAlchemyUnitOfWork) -> dict[str, Any]:
                 "interest_rate": account.interest_rate}
 
 
-def fetch_all_accounts(uow: SQLAlchemyUnitOfWork) -> list[tuple[UUID, str]]:
+def fetch_all_accounts(uow: SQLAlchemyUnitOfWork) -> list[tuple[UUID, str, float]]:
     with uow:
-        stmt = select(Account.id_, Account.name)
+        stmt = select(Account.id_, Account.name, Account.interest_rate)
         accounts = uow.session.execute(stmt).all()
         return list(accounts)
 

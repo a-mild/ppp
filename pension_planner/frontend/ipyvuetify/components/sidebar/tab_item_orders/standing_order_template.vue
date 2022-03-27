@@ -1,24 +1,27 @@
 <div>
     <v-text-field
-        label="Name"
-        v-model="name"
-        @change="update_name"
         id="name"
+        v-model="name"
+        label="Name"
+        color="green darken-1"
         outlined
+        @change="update_name"
     >
     </v-text-field>
     <v-select
         v-model="from_acc_id"
-        label="Von Konto"
         :items="from_acc_id_options"
+        label="Von Konto"
+        color="green darken-1"
         outlined
         @change="update_from_acc_id"
     >
     </v-select>
     <v-select
         v-model="target_acc_id"
-        label="Auf Konto"
         :items="target_acc_id_options"
+        label="Auf Konto"
+        color="green darken-1"
         outlined
         @change="update_target_acc_id"
     >
@@ -38,6 +41,7 @@
                 prepend-icon="mdi-calendar"
                 readonly
                 outlined
+                color="green darken-1"
                 v-bind="attrs"
                 v-on="on"
             >
@@ -58,7 +62,6 @@
         transition="scale-transition"
         offset-y
         min-width="290px"
-        dark
     >
         <template v-slot:activator="{ on, attrs }">
             <v-text-field
@@ -67,6 +70,7 @@
                 prepend-icon="mdi-calendar"
                 readonly
                 outlined
+                color="green darken-1"
                 v-bind="attrs"
                 v-on="on"
             >
@@ -82,10 +86,11 @@
         </v-date-picker>
     </v-menu>
     <v-text-field
+        v-model="amount"
         type="number"
         label="Betrag"
-        v-model="amount"
         prepend-icon="mdi-cash"
+        color="green darken-1"
         outlined
         @change="update_amount"
     >

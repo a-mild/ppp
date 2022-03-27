@@ -1,10 +1,19 @@
-<v-navigation-drawer app v-model="drawer_open" width="50%">
-    <v-tabs grow>
+<v-navigation-drawer
+    v-model="drawer_open"
+    app
+    width="30%"
+>
+    <v-tabs
+        v-model="tab"
+        grow
+        color="white"
+        background-color="green darken-1"
+    >
       <v-tab id="accounts_tab">
         <v-icon left>
           mdi-account-cash
         </v-icon>
-        Accounts
+        Konten
       </v-tab>
       <v-tab id="orders_tab">
         <v-icon left>
@@ -12,11 +21,13 @@
         </v-icon>
         Aufträge
       </v-tab>
-          <v-tab-item>
-            <jupyter-widget :widget="tab_item_accounts">
-          </v-tab-item>
-          <v-tab-item>
-            <jupyter-widget :widget="tab_item_orders">
-          </v-tab-item>
     </v-tabs>
+    <v-tabs-items v-model="tab">
+        <v-tab-item>
+            <jupyter-widget :widget="tab_item_accounts">
+        </v-tab-item>
+        <v-tab-item>
+            <jupyter-widget :widget="tab_item_orders">
+        </v-tab-item>
+    </v-tabs-items>
 </v-navigation-drawer>

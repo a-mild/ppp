@@ -1,5 +1,9 @@
 <template>
-    <v-app-bar app>
+    <v-app-bar
+        app
+        dark
+        color="green darken-1"
+    >
         <v-app-bar-nav-icon
             id="toggle_sidebar_button"
             @click.stop="toggle_drawer()">

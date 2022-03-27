@@ -15,6 +15,7 @@ from pension_planner.frontend.ipyvuetify.components.sidebar.sidebar import SideB
 from pension_planner.frontend.ipyvuetify.components.appbar.appbar import AppBar
 
 
+
 class App(v.VuetifyTemplate):
     sidebar = traitlets.Any().tag(sync=True, **w.widget_serialization)
     appbar = traitlets.Any().tag(sync=True, **w.widget_serialization)
