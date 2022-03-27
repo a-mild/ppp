@@ -45,3 +45,19 @@ def test_fetch_order(session_factory, single_order_factory, standing_order_facto
     assert revived_standing_order["type"] == "standing_order"
     for key, value in saved_standing_order.items():
         assert revived_standing_order[key] == value
+
+
+def test_fetch_all_orders(session_factory, single_order_factory, standing_order_factory):
+    single_order = single_order_factory()
+    standing_order = standing_order_factory()
+    saved_single_order = asdict(single_order)
+    saved_single_order.pop("events")
+    saved_standing_order = asdict(standing_order)
+    saved_standing_order.pop("events")
+    uow = SQLAlchemyUnitOfWork(session_factory)
+    with uow:
+        single_order_id = uow.orders.add(single_order)
+        standing_order_id = uow.orders.add(standing_order)
+
+    orders = views.fetch_all_orders(uow)
+    assert len(orders) == 2

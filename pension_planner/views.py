@@ -33,3 +33,10 @@ def fetch_order(id_: UUID, uow: SQLAlchemyUnitOfWork) -> dict[str, Any]:
         order = uow.session.execute(stmt).scalars().first()
         result = asdict(order) | {"type": order.type}
         return result
+
+
+def fetch_all_orders(uow: SQLAlchemyUnitOfWork) -> list[dict[str, Any]]:
+    with uow:
+        stmt = select(OrderBase)
+        orders = uow.session.execute(stmt).scalars().all()
+        return list(map(asdict, orders))
