@@ -5,7 +5,8 @@ from pension_planner.service_layer.handlers.crud import OpenAccountHandler, Clos
 from pension_planner.service_layer.handlers.frontend import UpdateFrontendAfterAccountOpened, \
     UpdateFrontendAfterAccountClosed, ToggleDrawerHandler, UpdateFrontendAfterOrderCreated, \
     UpdateFrontendAfterOrderDeleted, UpdatePlottingFrontend, UpdateFrontendAfterAccountAttributeUpdated, \
-    UpdateFrontendAfterOrderAttributeUpdated
+    UpdateFrontendAfterOrderAttributeUpdated, UpdateFrontendAfterDatabaseUploaded
+
 
 # class AddAccountToOverview:
 #
@@ -182,6 +183,7 @@ EVENT_HANDLERS = {
         UpdatePlottingFrontend,
     ],
     events.DatabaseUploaded: [
+        UpdateFrontendAfterDatabaseUploaded,
         UpdatePlottingFrontend,
     ]
 }

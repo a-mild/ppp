@@ -83,3 +83,12 @@ class UpdatePlottingFrontend:
             if totals.empty is True:
                 return
             self.frontend.update_plotting_frontend(totals)
+
+
+class UpdateFrontendAfterDatabaseUploaded:
+
+    def __init__(self, frontend: AbstractFrontendInterface) -> None:
+        self.frontend = frontend
+
+    def __call__(self, event: events.DatabaseUploaded):
+        self.frontend.handle_database_uploaded()

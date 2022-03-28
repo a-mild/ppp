@@ -1,4 +1,3 @@
-import logging
 from uuid import UUID
 
 import pandas as pd
@@ -44,6 +43,10 @@ class IPyVuetifyFrontend(AbstractFrontendInterface):
     def handle_order_attribute_updated(self, event: events.OrderAttributeUpdated) -> None:
         if event.attribute in {"from_acc_id", "target_acc_id"}:
             self.app.sidebar.tab_item_orders.order_editor.update_dropdowns()
+
+    def handle_database_uploaded(self) -> None:
+        self.app.sidebar.tab_item_accounts.load_all_accounts()
+        self.app.sidebar.tab_item_orders.order_editor.load_all_orders()
 
     def update_plotting_frontend(self, df: pd.DataFrame) -> None:
         self.plotting_frontend.update_with(df)

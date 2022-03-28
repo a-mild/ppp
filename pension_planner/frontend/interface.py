@@ -41,4 +41,8 @@ class AbstractFrontendInterface(ABC):
     @abstractmethod
     def setup(self, bus: MessageBus) -> None:
         ...
+
+    @abstractmethod
+    def handle_database_uploaded(self) -> None:
+        ...
     
