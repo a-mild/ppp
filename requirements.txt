@@ -1,0 +1,13 @@
+jupyter
+python-dateutil
+voila>=0.2.11
+ipywidgets
+pandas
+jupyterlab>=3.1
+ipyvuetify
+sqlalchemy
+spectate
+plotly
+matplotlib
+ipympl
+ipyflex
