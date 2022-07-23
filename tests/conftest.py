@@ -13,7 +13,7 @@ from pension_planner.bootstrap import bootstrap
 from pension_planner.domain import events
 from pension_planner.domain.account import Account
 from pension_planner.domain.commands import account_name_factory, single_order_name_factory, standing_order_name_factory
-from pension_planner.domain.orders import SingleOrder, StandingOrder, OrderBase
+from pension_planner.domain.orders import OrderBase, SingleOrder, StandingOrder
 from pension_planner.frontend.interface import AbstractFrontendInterface
 from pension_planner.service_layer.messagebus import MessageBus
 from pension_planner.service_layer.unit_of_work import AbstractUnitOfWork
@@ -81,7 +81,7 @@ class FakeRepository(AbstractRepository):
     def _delete(self, id_: UUID) -> Entity | None:
         return self.data.pop(id_, None)
 
-    def _update(self, id_: UUID, attribute: str, new_value: Any) -> Entity:
+    def _update(self, id_: UUID, attribute: str, new_value: Any) -> Entity | None:
         entity = self.data.get(id_)
         if not entity:
             return
@@ -108,6 +108,9 @@ class FakeUnitOfWork(AbstractUnitOfWork):
 
 
 class FakeFrontend(AbstractFrontendInterface):
+
+    def handle_database_uploaded(self) -> None:
+        pass
 
     def setup(self, bus: MessageBus) -> None:
         pass

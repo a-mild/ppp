@@ -1,6 +1,6 @@
 import pytest
 
-from pension_planner.adapters.repositories import SQLAlchemyAccountRepository, SQLAlchemyOrderRepository
+from src.pension_planner.adapters.repositories import SQLAlchemyAccountRepository, SQLAlchemyOrderRepository
 from pension_planner.service_layer.unit_of_work import SQLAlchemyUnitOfWork
 
 

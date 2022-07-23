@@ -1,12 +1,9 @@
 from datetime import date
-from uuid import uuid4
 
 import pandas as pd
-import pytest
 
-from pension_planner.domain.bank_statement_service import produce_bankstatement, create_series, concat_series, merge, \
+from pension_planner.domain.bank_statement_service import create_series, concat_series, merge, \
     BankStatement
-from pension_planner.domain.orders import SingleOrder, StandingOrder
 
 
 def test_create_series(single_order_factory, standing_order_factory):
@@ -58,6 +55,7 @@ def test_concat_two_series(single_order_factory, standing_order_factory):
 def test_merge_empty_list():
     result = merge([])
     assert result.empty is True
+
 
 def test_merge_two_empty_dataframes():
     df1 = pd.DataFrame(index=pd.DatetimeIndex([]))

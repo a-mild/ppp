@@ -2,9 +2,8 @@ from datetime import date
 from uuid import uuid4
 
 import pytest
-from pension_planner.adapters.repositories import SQLAlchemyAccountRepository, SQLAlchemyOrderRepository
-from pension_planner.domain.events import AccountOpened, AccountAttributeUpdated
-from pension_planner.domain.orders import SingleOrder
+from src.pension_planner.domain import AccountOpened, AccountAttributeUpdated
+from src.pension_planner.domain import SingleOrder
 
 
 pytestmark = pytest.mark.usefixtures("mappers")

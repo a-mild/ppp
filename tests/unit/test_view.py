@@ -9,7 +9,7 @@ from pension_planner.service_layer.unit_of_work import SQLAlchemyUnitOfWork
 pytestmark = pytest.mark.usefixtures("mappers")
 
 
-def test_all_accounts(session_factory, account_factory):
+def test_fetch_all_accounts(session_factory, account_factory):
     account1 = account_factory(
         name="Account 1"
     )

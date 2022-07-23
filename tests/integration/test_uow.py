@@ -4,9 +4,9 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
-from pension_planner.domain import events
-from pension_planner.domain.account import Account
-from pension_planner.domain.orders import OrderBase
+from src.pension_planner.domain import events
+from src.pension_planner.domain import Account
+from src.pension_planner.domain import OrderBase
 
 
 pytestmark = pytest.mark.usefixtures("mappers")
